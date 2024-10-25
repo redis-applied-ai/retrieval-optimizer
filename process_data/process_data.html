@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload with Vue.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-multiselect@2.1.6/dist/vue-multiselect.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <div class="header">
+            <img src='./assets/public/redis-logo.png' alt="Redis Logo" class="header-logo">
+            </img>
+            <div class="cta-nav">
+                <a href='https://x.com/Redisinc'>
+                    <img alt="x logo" src='./assets/public/x-logo.svg' class="header-icon-link"></img>
+                </a>
+                <a href='https://github.com/RedisVentures/eval-framework'>
+                    <img alt="Github logo" src="./assets/public/github-mark-white.svg" class="header-icon-link"></img>
+                </a>
+                <a class="header-cta" href="applied.ai@redis.com">
+                    Talk with us!
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+            <h1>Redis Eval Framework Labeling Tool</h1>
+            <p>
+                This tool is used to label data returned from a vector search as relevant or not relevant to the
+                question
+                input. You can change the schema and redis instance the queries are executed against by updating the
+                variables in the root of the app.
+
+                <br><br>
+
+                Currently vector search is configured to run against:
+            <ul v-if="indexInfo">
+                <li>Index name: <strong>{{indexInfo['index']['name']}}</strong></li>
+                <li>Labeled data key <strong>{{indexInfo['labeled_data_key']}}</strong> (this is where the labeled data
+                    will be
+                    stored as a json)</li>
+            </ul>
+            </p>
+
+            <h1>Questions</h1>
+            <div>
+                <span>top k:</span>
+                <input type="text" class="k-input" v-model="k">
+            </div>
+
+            <div class="question-input">
+                <input type="text" v-model="question" class="search"><br>
+                <button @click="handleSearch">Search</button>
+            </div>
+
+            <h2>Chunks</h2>
+            <div v-for="chunk in chunks" :key="chunk.id">
+                <input type="checkbox" :value="chunk.id" v-model="selectedChunkIds">
+                <div style="padding: 1rem">{{ chunk.content }}</div>
+            </div>
+
+            <h2>Relevant Chunk IDs</h2>
+            <div v-if="selectedChunkIds.length > 0">
+                <span v-for="id in selectedChunkIds" :key="id">{{ id }} </span>
+            </div>
+            <div v-else>
+                <p>No chunks selected.</p>
+            </div>
+
+            <button @click="saveLabeledSet">Save Labeled</button>
+
+            <h2>Labeled data stored in DB</h2>
+            <div v-for="data in labeledData" :key="data.query">
+                <div>query: {{data.query}}</div>
+                <div>relevant_item_ids: {{data.relevant_item_ids}}</div>
+            </div>
+            <br>
+            <button @click="exportLabeledData">Export To File</button>
+        </div>
+
+        <div class="footer"></div>
+    </div>
+
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                file: null,
+                question: '',
+                chunks: [],
+                selectedChunkIds: [],
+                indexInfo: null,
+                labeledData: [],
+                k: 6,
+                exportLocation: ""
+            },
+            mounted() {
+                this.getIndexInfo();
+                this.getLabeledData();
+            },
+            methods: {
+                handleFileUpload(event) {
+                    this.file = event.target.files[0];
+                },
+                handleSearch(event) {
+                    axios.post(`http://localhost:8000/query?user_query=${this.question}&k=${this.k}`).then(response => {
+                        this.chunks = response.data;
+                    });
+                },
+                getIndexInfo() {
+                    axios.get('http://localhost:8000/index_info').then(response => {
+                        this.indexInfo = response.data;
+                    });
+                },
+                getLabeledData() {
+                    axios.get('http://localhost:8000/labeled_data').then(response => {
+                        this.labeledData = response.data;
+                    });
+                },
+                exportLabeledData() {
+                    axios.post('http://localhost:8000/export_labeled_data').then(response => {
+                        this.exportLabeledData = response.data;
+                    });
+                },
+                saveLabeledSet() {
+                    axios.post('http://localhost:8000/save', {
+                        query: this.question,
+                        relevant_item_ids: this.selectedChunkIds
+                    }).then(response => {
+                        console.log(response.data);
+                        this.question = '';
+                        this.chunks = [];
+                        this.selectedChunkIds = [];
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

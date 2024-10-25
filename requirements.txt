@@ -1,0 +1,8 @@
+fastapi
+fastapi-cli
+optuna
+pandas
+numpy
+redisvl
+pydantic
+sentence-transformers
