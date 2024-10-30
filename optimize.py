@@ -22,10 +22,25 @@ def load_config(config_path: str) -> StudyConfig:
 def calc_baseline(study_config):
     # for comparison run objective against baseline
 
-    e = Eval(
+    small = Eval(
         model_provider="hf",
         model_str="sentence-transformers/all-MiniLM-L6-v2",
         embedding_dim=384,
+        raw_data_path=study_config.raw_data_path,
+        labeled_data_path=study_config.labeled_data_path,
+        input_data_type=study_config.input_data_type,
+        vector_data_type="float16",
+        algorithm="flat",
+        ret_k=6,  # maybe make a independent variable
+        find_threshold=False,
+    )
+
+    small.calc_metrics()
+
+    large = Eval(
+        model_provider="hf",
+        model_str="intfloat/e5-large-v2",
+        embedding_dim=1024,
         raw_data_path=study_config.raw_data_path,
         labeled_data_path=study_config.labeled_data_path,
         input_data_type=study_config.input_data_type,
@@ -35,32 +50,22 @@ def calc_baseline(study_config):
         find_threshold=False,
     )
 
-    e.calc_metrics()
-    return e
+    large.calc_metrics()
+
+    return small, large
 
 
 def cost_fn(metrics: list, weights: list):
     return np.dot(np.array(metrics), np.array(weights))
 
 
-def get_metric_values_norm(e, study_config, baseline=None):
-    metric_values = []
-
-    for m in study_config.metrics:
-        if m == "f1_at_k":
-            metric_values.append(e.f1_at_k - baseline.f1_at_k)
-        elif m == "embedding_latency":
-            # subtract baseline for values we want to minimize
-            metric_values.append(-e.embedding_latency + baseline.embedding_latency)
-        elif m == "total_indexing_time":
-            # subtract baseline for values we want to minimize
-            metric_values.append(-e.total_indexing_time + baseline.total_indexing_time)
-        else:
-            raise ValueError(f"Unknown metric: {m}")
-    return metric_values
+def norm_metrics(value: float, baseline: list):
+    min_v = min(baseline + [value])
+    max_v = max(baseline + [value])
+    return (value - min_v) / (max_v - min_v)
 
 
-def objective(trial, study_config, baseline):
+def objective(trial, study_config, baseline_sm, baseline_lg):
     # we want to max the overall F1 score
     model_info = trial.suggest_categorical(
         "model_info",
@@ -121,11 +126,16 @@ def objective(trial, study_config, baseline):
 
     e.calc_metrics()
 
-    metric_values = [
-        e.f1_at_k - baseline.f1_at_k,
-        baseline.embedding_latency - e.embedding_latency,
-        baseline.total_indexing_time - e.total_indexing_time,
-    ]
+    norm_index_time = norm_metrics(
+        e.total_indexing_time,
+        [baseline_sm.total_indexing_time, baseline_lg.total_indexing_time],
+    )
+    norm_latency = norm_metrics(
+        e.embedding_latency,
+        [baseline_sm.embedding_latency, baseline_lg.embedding_latency],
+    )
+
+    metric_values = [e.f1_at_k, -norm_index_time, -norm_latency]
 
     print(f"Metrics: {metric_values}")
 
@@ -141,12 +151,8 @@ def run_study():
     args = parser.parse_args()
     study_config = load_config(args.config)
 
-    baseline = calc_baseline(study_config)
-    baseline_metric_values = [
-        baseline.f1_at_k,
-        baseline.embedding_latency,
-        baseline.total_indexing_time,
-    ]
+    # calculate baselines in order to normalize study
+    baseline_sm, baseline_lg = calc_baseline(study_config)
 
     study = optuna.create_study(
         study_name="test",
@@ -155,16 +161,18 @@ def run_study():
         pruner=optuna.pruners.MedianPruner(),
     )
 
-    obj = partial(objective, study_config=study_config, baseline=baseline)
+    obj = partial(
+        objective,
+        study_config=study_config,
+        baseline_sm=baseline_sm,
+        baseline_lg=baseline_lg,
+    )
     study.optimize(obj, n_trials=study_config.n_trials, n_jobs=study_config.n_jobs)
     print(f"Completed Bayesian optimization...")
 
     best_trial = study.best_trial
     print(f"Best Configuration: {best_trial.number}: {best_trial.params}:")
     print(f"Best Score: {best_trial.values}")
-
-    print(f"Baseline metrics: {baseline_metric_values}")
-    # print(f"Optimization Improvement: {best_trial.values - baseline_score}")
 
 
 if __name__ == "__main__":
