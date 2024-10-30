@@ -1,0 +1,91 @@
+[
+    {
+        "query": "\"shift from 2nd gear to 3rd gear at what speed in a manual transmission car\"",
+        "relevant_item_ids": [
+            "86"
+        ]
+    },
+    {
+        "query": "\"settings for vehicle speed regulation via electronic override\"",
+        "relevant_item_ids": [
+            "92",
+            "93"
+        ]
+    },
+    {
+        "query": "\"ABS braking function\" OR \"anti-lock braking system capabilities\"",
+        "relevant_item_ids": [
+            "84",
+            "75",
+            "105"
+        ]
+    },
+    {
+        "query": "\"Model year 2015 [car make] engine type: [insert specific engine type] recommended motor oil viscosity: [insert specific viscosity]\"",
+        "relevant_item_ids": [
+            "188"
+        ]
+    },
+    {
+        "query": "\"security system activation car manual\"",
+        "relevant_item_ids": [
+            "68",
+            "69"
+        ]
+    },
+    {
+        "query": "\"Brake fluid level too low, what are the recommended top-offs or replacement procedures?\"",
+        "relevant_item_ids": [
+            "105",
+            "83"
+        ]
+    },
+    {
+        "query": "\"replace wiper blades when showing signs of wear, typically every 6-12 months or after exposure to extreme temperatures.\"",
+        "relevant_item_ids": [
+            "195",
+            "194"
+        ]
+    },
+    {
+        "query": "Can I find specifications on tire size compatibility for [make of car]?",
+        "relevant_item_ids": [
+            "226",
+            "227",
+            "229",
+            "76"
+        ]
+    },
+    {
+        "query": "\"Jump starting how-to\"",
+        "relevant_item_ids": [
+            "176",
+            "175"
+        ]
+    },
+    {
+        "query": "\"Paint damage repair\" OR \"flooded vehicle interior cleaning\" OR \"car paint restoration techniques\"",
+        "relevant_item_ids": [
+            "179",
+            "209",
+            "211",
+            "212",
+            "213",
+            "210"
+        ]
+    },
+    {
+        "query": "\"car model + lighting system + compatible bulb type\"",
+        "relevant_item_ids": [
+            "242",
+            "205"
+        ]
+    },
+    {
+        "query": "\"ideal gear ratio between 4th and 5th gear in manual transmission vehicles.\"",
+        "relevant_item_ids": [
+            "86",
+            "90"
+        ]
+    }
+]

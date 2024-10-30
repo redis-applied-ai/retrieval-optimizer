@@ -1,0 +1,91 @@
+[
+    {
+        "query": "At what speed should I shift from 2 to 3 with a manual transmission?",
+        "relevant_item_ids": [
+            "86"
+        ]
+    },
+    {
+        "query": "How do I set the cruise control?",
+        "relevant_item_ids": [
+            "92",
+            "93"
+        ]
+    },
+    {
+        "query": "What does the ABS system do?",
+        "relevant_item_ids": [
+            "84",
+            "75",
+            "105"
+        ]
+    },
+    {
+        "query": "What type of oil should I use for this car?",
+        "relevant_item_ids": [
+            "188"
+        ]
+    },
+    {
+        "query": "How do I arm the security system for this car?",
+        "relevant_item_ids": [
+            "68",
+            "69"
+        ]
+    },
+    {
+        "query": "What should I do if brake fluid is low?",
+        "relevant_item_ids": [
+            "105",
+            "83"
+        ]
+    },
+    {
+        "query": "When should I replace wiper blades?",
+        "relevant_item_ids": [
+            "195",
+            "194"
+        ]
+    },
+    {
+        "query": "What sized tires can I put on this car?",
+        "relevant_item_ids": [
+            "226",
+            "227",
+            "229",
+            "76"
+        ]
+    },
+    {
+        "query": "How to jump start this car?",
+        "relevant_item_ids": [
+            "176",
+            "175"
+        ]
+    },
+    {
+        "query": "How do I stop paint damage?",
+        "relevant_item_ids": [
+            "179",
+            "209",
+            "211",
+            "212",
+            "213",
+            "210"
+        ]
+    },
+    {
+        "query": "What lightbulbs should I use for this car?",
+        "relevant_item_ids": [
+            "242",
+            "205"
+        ]
+    },
+    {
+        "query": "What is the ideal shift range from 4 to 5th?",
+        "relevant_item_ids": [
+            "86",
+            "90"
+        ]
+    }
+]
