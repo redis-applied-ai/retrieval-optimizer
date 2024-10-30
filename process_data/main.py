@@ -25,9 +25,13 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # these need to correspond to the fields within the schema for the optimization to work
 ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "chunk_id")
 CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "content")
+cache_folder = os.getenv("MODEL_CACHE", "")
 
-# HF model currently but could swap for any available with redisvl Vectorizer
-emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
+if cache_folder:
+    emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{cache_folder}")
+else:
+    # HF model currently but could swap for any available with redisvl Vectorizer
+    emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
 # connect to redis
 client = Redis.from_url(REDIS_URL)
 

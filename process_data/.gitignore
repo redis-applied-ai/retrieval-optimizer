@@ -1,2 +1,5 @@
 .env
 data/*
+!data/2008-mazda3-chunks.json
+!data/mazda-labeled.json
+!data/mazda-labeled-rewritten.json
