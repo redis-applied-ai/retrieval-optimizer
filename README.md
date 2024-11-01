@@ -2,6 +2,12 @@
 
 A tool for finding the optimal set of hyperparameters for retrieval from a vector index.
 
+## I/O
+
+Input: set of chunks to be indexing and retrieved, set of queries and their corresponding relevant_item_ids (these id should be canonical aka unique to each chunk), and a study config.
+
+Output: best configuration for search index.
+
 ## General flow
 
 The primary optimize flow takes 3 inputs: labeled data, raw data, and the study config. These input are used to run the relevant trials from which the best configuration is chosen.
@@ -84,20 +90,38 @@ touch process_data/.env
 
 in process_data/.env
 ```
-REDIS_URL=
-LABELED_DATA_PATH=
+REDIS_URL=<Redis connection url>
+LABELED_DATA_PATH=<file location for exported output>
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 SCHEMA_PATH=schema/index_schema.yaml
+
+# Corresponding fields to return from index see label_app/main.py for implementation
+ID_FIELD_NAME=canonical chunk id
+CHUNK_FIELD_NAME=text content
 ```
 
-Run
+## Running the labeling ui
+
+The following commands will serve the app to `localhost:8000/label`.
+You can also interact with the swagger docs at `localhost:8000/docs`
+
+With docker (recommended):
+
 ```
-pip install -r requirements.txt
-cd process_data
-fastapi dev main.py
+docker compose up
 ```
 
-Then with your file explorer open process_data.html
+Locally with python/poetry
+```
+poetry install
+poetry run uvicorn label_app.main:app --host 0.0.0.0 --port 8000
+```
+
+Note: if you run locally need to run an instance of Redis. The easiest way to do this is with the following command: `docker run -d --name redis -p 6379:6379 -p 8001:8001 redis/redis-stack:latest`
+
+## Populating the index
+
+See `label_app/process_data.ipynb` to load sample chunks into the index for use.
 
 Input question and check the boxes for chunks that are relevant.
 ![process](images/process_data.png)

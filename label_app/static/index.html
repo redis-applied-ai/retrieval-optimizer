@@ -46,6 +46,7 @@
                 <li>Labeled data key <strong>{{indexInfo['labeled_data_key']}}</strong> (this is where the labeled data
                     will be
                     stored as a json)</li>
+                <li>Docs loaded <strong>{{indexInfo['num_docs']}}</strong></li>
             </ul>
             </p>
 
@@ -77,7 +78,7 @@
             <button @click="saveLabeledSet">Save Labeled</button>
 
             <h2>Labeled data stored in DB</h2>
-            <div v-for="data in labeledData" :key="data.query">
+            <div v-for="data in labeledData" :key="data.query" v-model="labeledData">
                 <div>query: {{data.query}}</div>
                 <div>relevant_item_ids: {{data.relevant_item_ids}}</div>
             </div>
@@ -130,6 +131,7 @@
                     axios.post('http://localhost:8000/export_labeled_data').then(response => {
                         this.exportLabeledData = response.data;
                     });
+                    alert('Labeled data saved to file!');
                 },
                 saveLabeledSet() {
                     axios.post('http://localhost:8000/save', {
@@ -140,6 +142,7 @@
                         this.question = '';
                         this.chunks = [];
                         this.selectedChunkIds = [];
+                        this.getLabeledData();
                     });
                 }
             }

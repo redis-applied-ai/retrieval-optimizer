@@ -5,6 +5,7 @@ import yaml
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from redis import Redis
 from redis.commands.json.path import Path
@@ -18,20 +19,22 @@ load_dotenv()
 # Change to schema config that represents your data as needed
 # make sure model used matches the dimensions of the schema
 # if in .env file will load from there otherwise will default to the provided
-SCHEMA_PATH = os.getenv("SCHEMA_PATH", "schema/index_schema.yaml")
+SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/index_schema.yaml")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # these need to correspond to the fields within the schema for the optimization to work
 ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "chunk_id")
 CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "content")
-cache_folder = os.getenv("MODEL_CACHE", "")
+CACHE_FOLDER = os.getenv("MODEL_CACHE", "")
+STATIC_FOLDER = os.getenv("STATIC_FOLDER", "label_app/static")
 
-if cache_folder:
-    emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{cache_folder}")
+if CACHE_FOLDER:
+    emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{CACHE_FOLDER}")
 else:
     # HF model currently but could swap for any available with redisvl Vectorizer
     emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
+
 # connect to redis
 client = Redis.from_url(REDIS_URL)
 
@@ -48,6 +51,8 @@ index.set_client(client)
 
 # Init app and set cors for local tool
 app = FastAPI()
+
+app.mount("/label", StaticFiles(directory=STATIC_FOLDER, html=True), name="static")
 
 origins = [
     "http://localhost",
@@ -78,7 +83,21 @@ class IndexInfo(BaseModel):
 
 @app.get("/index_info")
 async def index_info():
-    return {**schema_dict, "labeled_data_key": LABELED_DATA_KEY}
+    try:
+        info = index.info()
+        return {
+            **schema_dict,
+            "labeled_data_key": LABELED_DATA_KEY,
+            "num_docs": info["num_docs"],
+        }
+    except Exception as e:
+        return {
+            "index": {
+                "name": "couldn't load index",
+                "labeled_data_key": LABELED_DATA_KEY,
+                "num_docs": 0,
+            }
+        }
 
 
 @app.post("/query")
@@ -114,7 +133,7 @@ async def labeled_data():
 @app.post("/export_labeled_data")
 async def export_labeled_data():
     obj = client.json().get(LABELED_DATA_KEY)
-    save_path = os.getenv("LABELED_DATA_PATH", "data/labeled_data.json")
+    save_path = os.getenv("LABELED_DATA_PATH", "label_app/data/labeled_data.json")
 
     if obj:
         with open(save_path, "w") as f:

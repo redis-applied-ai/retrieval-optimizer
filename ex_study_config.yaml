@@ -7,7 +7,7 @@ metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"]
 # weight of each metric
 weights: [1, 1, 1]
 # constraints for the optimization
-n_trials: 2
+n_trials: 5
 n_jobs: 1
 ret_k: [1, 10] # potential range of value to be sampled during study
 ef_runtime: [10, 50]
