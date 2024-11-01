@@ -1,6 +1,7 @@
 [tool.poetry]
-name = "redis_eval_framework"
+name = "label_app"
 version = "0.1.0"
+package-mode = false
 description = "Evaluation framework for retrieval from redis vector index"
 authors = ["Robert Shelton  <robert.shelton@redis.com>"]
 readme = "README.md"
@@ -33,7 +34,7 @@ types-tabulate = "*"
 anyio = {extras = ["trio"], version = "^4.4.0"}
 
 [tool.poetry.scripts]
-start = "arxivsearch.main:main"
+start = "label_app.main:app"
 start-app = "scripts:start_app"
 load = "scripts:load"
 format = "scripts:format"

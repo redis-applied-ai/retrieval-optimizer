@@ -7,7 +7,6 @@ import random
 import time
 from typing import List
 
-from models import LabeledItem, Settings
 from pydantic import TypeAdapter
 from redis.asyncio import Redis as AsyncRedis
 from redis.commands.json.path import Path
@@ -15,6 +14,8 @@ from redisvl.index import AsyncSearchIndex, SearchIndex
 from redisvl.query import VectorQuery
 from redisvl.query.filter import Tag
 from redisvl.redis.utils import array_to_buffer
+
+from models import LabeledItem, Settings
 from utilities import get_embedding_model
 
 logging.basicConfig(

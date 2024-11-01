@@ -2,18 +2,19 @@ import subprocess
 
 
 def load_data():
-    subprocess.run(["python", "-m", "arxivsearch.db.load"], check=True)
+    print("")
 
 
 def start_app():
-    # load data
-    subprocess.run(["python", "-m", "arxivsearch.db.load"], check=True)
     # start app
-    subprocess.run(["python", "-m", "arxivsearch.main"], check=True)
+    subprocess.run(
+        ["uvicorn", "label_app.main:app", "--host", "0.0.0.0", "--port", "8000"],
+        check=True,
+    )
 
 
 def format():
-    subprocess.run(["isort", ".", "./tests/", "--profile", "black"], check=True)
+    subprocess.run(["isort", ".", "--profile", "black"], check=True)
     subprocess.run(["black", "."], check=True)
 
 
@@ -38,9 +39,7 @@ def mypy():
 
 
 def test():
-    subprocess.run(
-        ["python", "-m", "pytest", "arxivsearch", "--log-level=CRITICAL"], check=True
-    )
+    subprocess.run(["python", "-m", "pytest", ".", "--log-level=CRITICAL"], check=True)
 
 
 def test_cov():

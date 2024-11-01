@@ -1,10 +1,12 @@
-from models import Settings
+import json
+import logging
+
+import numpy as np
+import pandas as pd
 from redis import Redis
 from redis.commands.json.path import Path
-import json
-import pandas as pd
-import numpy as np
-import logging
+
+from models import Settings
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
