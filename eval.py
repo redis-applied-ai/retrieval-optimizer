@@ -4,13 +4,11 @@ import logging
 import time
 from uuid import uuid4
 
+from calc_metrics import calc_best_threshold, calc_ret_metrics
+from models import DataSettings, EmbeddingSettings, IndexSettings, Settings
 from redis import Redis
 from redis.commands.json.path import Path
 from redisvl.index import SearchIndex
-from redisvl.redis.utils import array_to_buffer
-
-from calc_metrics import calc_best_threshold, calc_ret_metrics
-from models import DataSettings, EmbeddingSettings, IndexSettings, Settings
 from sample_index import run_ret_samples, run_threshold_samples
 from utilities import embed_chunks, get_embedding_model
 

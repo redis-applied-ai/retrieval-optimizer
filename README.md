@@ -4,7 +4,7 @@ A tool for finding the optimal set of hyperparameters for retrieval from a vecto
 
 ## I/O
 
-Input: set of chunks to be indexing and retrieved, set of queries and their corresponding relevant_item_ids (these id should be canonical aka unique to each chunk), and a study config.
+Input: set of chunks to be indexing and retrieved, set of queries and their corresponding relevant_item_ids (these id should be canonical aka unique to each chunk), and a study config. For an example see [label_app/data/mazda-labeled.json](label_app/data/mazda-labeled.json) and [label_app/data/2008-mazda3-chunks.json](label_app/data/2008-mazda3-chunks.json)
 
 Output: best configuration for search index.
 
@@ -110,6 +110,8 @@ With docker (recommended):
 ```
 docker compose up
 ```
+
+#### This will run a redis instance on 6379 and redis insight (database gui) on 8001.
 
 Locally with python/poetry
 ```
