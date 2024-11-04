@@ -1,0 +1,8 @@
+[
+    {
+        "query": "A question about latin",
+        "relevant_item_ids": [
+            "1"
+        ]
+    }
+]

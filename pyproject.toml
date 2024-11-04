@@ -19,6 +19,7 @@ sentence-transformers = "^3.0.1"
 sentencepiece = "^0.2.0"
 redis = "^5.0.7"
 optuna = "^4.0.0"
+pandas = "^2.2.3"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "1.9.0"
@@ -32,6 +33,7 @@ types-redis = "*"
 types-pyyaml = "*"
 types-tabulate = "*"
 anyio = {extras = ["trio"], version = "^4.4.0"}
+ipykernel = "^6.29.5"
 
 [tool.poetry.scripts]
 start = "label_app.main:app"

@@ -10,13 +10,12 @@ from typing import List
 from pydantic import TypeAdapter
 from redis.asyncio import Redis as AsyncRedis
 from redis.commands.json.path import Path
-from redisvl.index import AsyncSearchIndex, SearchIndex
+from redisvl.index import AsyncSearchIndex
 from redisvl.query import VectorQuery
 from redisvl.query.filter import Tag
-from redisvl.redis.utils import array_to_buffer
 
-from models import LabeledItem, Settings
-from utilities import get_embedding_model
+from optimize.models import LabeledItem, Settings
+from optimize.utilities import get_embedding_model
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -120,7 +119,7 @@ def make_ret_samples(k: int, labeled_items: List[LabeledItem], emb_model, dtype)
 async def connect_to_index(settings: Settings, schema):
     aclient = AsyncRedis.from_url(settings.redis_url)
     index = AsyncSearchIndex.from_dict(schema)
-    await index.set_client(aclient)
+    index.set_client(aclient)
     return index
 
 

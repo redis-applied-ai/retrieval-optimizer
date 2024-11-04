@@ -26,7 +26,6 @@ class IndexSettings(BaseModel):
 
 class Settings(BaseModel):
     test_id: str = str(uuid4())
-    # index_schema_path: str = "schema/hnsw_bge-small-en-v1.5.yaml"
     index: IndexSettings
     embedding: EmbeddingSettings
     data: DataSettings

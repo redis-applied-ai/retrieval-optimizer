@@ -6,7 +6,7 @@ import pandas as pd
 from redis import Redis
 from redis.commands.json.path import Path
 
-from models import Settings
+from optimize.models import Settings
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -89,7 +89,7 @@ def calc_precision_recall_f1(conf_matrix):
     return {"precision": precision, "recall": recall, "f1": f1}
 
 
-def gen_confusion_matrix(dist_threshold, tests_df):
+def first_result_metrics(dist_threshold, tests_df):
     # only for first result currently
     tests_df["pred"] = int(float(tests_df["cos_dists"][0][0]) < dist_threshold)
     tests_df["actual"] = tests_df["is_pos"]  # not sure why I need to do this
@@ -100,7 +100,7 @@ def gen_confusion_matrix(dist_threshold, tests_df):
 def find_optimum_distance_threshold(tests: pd.DataFrame):
     thresholds = np.arange(0.01, 0.8, 0.025)
     f1_scores = [
-        gen_confusion_matrix(threshold, tests)["f1"] for threshold in thresholds
+        first_result_metrics(threshold, tests)["f1"] for threshold in thresholds
     ]
     max_f1 = max(f1_scores)
     best_threshold = thresholds[f1_scores.index(max_f1)]
@@ -122,9 +122,3 @@ def calc_best_threshold(settings: Settings):
     )
     logging.info(f"Best threshold: {best_threshold}, Max F1: {max_f1}")
     return best_threshold, max_f1
-
-
-if __name__ == "__main__":
-    settings = Settings(test_id="48c41fbb-afa4-469f-a063-ad737514f143")
-
-    calc_best_threshold(settings)

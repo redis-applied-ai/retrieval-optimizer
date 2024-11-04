@@ -3,7 +3,7 @@ import time
 
 from redisvl.utils.vectorize import BaseVectorizer, HFTextVectorizer
 
-from models import EmbeddingSettings
+from optimize.models import EmbeddingSettings
 
 cache_folder = os.getenv("MODEL_CACHE", "models")
 
