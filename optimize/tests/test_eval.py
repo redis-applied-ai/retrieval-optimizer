@@ -44,6 +44,9 @@ def test_eval_happy_path(raw_chunk_path, labeled_chunks_path, test_db_client):
     assert persisted["metrics"]["retrieval"]["recall_at_k"] == 1.0
     assert persisted["metrics"]["retrieval"]["f1_at_k"] == 0.4
 
+    # cleanup
+    test_db_client.flushall()
+
 
 def test_multi_study(raw_chunk_path, labeled_chunks_path, test_db_client):
     e1_embedding_model = "sentence-transformers/all-MiniLM-L6-v2"
@@ -90,3 +93,6 @@ def test_multi_study(raw_chunk_path, labeled_chunks_path, test_db_client):
 
     e2_res = test_db_client.json().get(f"eval:{e2.settings.test_id}")
     assert e2_res["metadata"]["embedding_model"] == e2_embedding_model
+
+    # cleanup
+    test_db_client.flushall()
