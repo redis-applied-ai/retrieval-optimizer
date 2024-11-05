@@ -119,7 +119,7 @@ def make_ret_samples(k: int, labeled_items: List[LabeledItem], emb_model, dtype)
 async def connect_to_index(settings: Settings, schema):
     aclient = AsyncRedis.from_url(settings.redis_url)
     index = AsyncSearchIndex.from_dict(schema)
-    index.set_client(aclient)
+    await index.set_client(aclient)
     return index
 
 
