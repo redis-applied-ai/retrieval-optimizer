@@ -6,8 +6,8 @@ import numpy as np
 import optuna
 import yaml
 
-from eval import Eval
-from models import StudyConfig
+from optimize.eval import Eval
+from optimize.models import StudyConfig
 
 # Mute all warnings
 warnings.filterwarnings("ignore")
@@ -174,7 +174,3 @@ def run_study():
     best_trial = study.best_trial
     print(f"Best Configuration: {best_trial.number}: {best_trial.params}:")
     print(f"Best Score: {best_trial.values}")
-
-
-if __name__ == "__main__":
-    run_study()
