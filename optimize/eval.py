@@ -121,18 +121,40 @@ class Eval:
             )
 
         model = get_embedding_model(self.settings.embedding)
-        embeddings, self.embedding_latency = embed_chunks(
-            raw_chunks, model, self.settings.index.vector_data_type
-        )
 
-        processed_chunks = [
-            {
-                "text": chunk,
-                "item_id": i,
-                "vector": embeddings[i],
-            }
-            for i, chunk in enumerate(raw_chunks)
-        ]
+        if not len(raw_chunks):
+            self.logger.warning("No data to index")
+            return
+
+        if type(raw_chunks[0]) == str:
+            embeddings, self.embedding_latency = embed_chunks(
+                raw_chunks, model, self.settings.index.vector_data_type
+            )
+
+            processed_chunks = [
+                {"text": chunk, "item_id": i, "vector": embeddings[i]}
+                for i, chunk in enumerate(raw_chunks)
+            ]
+        elif type(raw_chunks[0]) == dict:
+            try:
+                embeddings, self.embedding_latency = embed_chunks(
+                    [chunk["text"] for chunk in raw_chunks],
+                    model,
+                    self.settings.index.vector_data_type,
+                )
+
+                processed_chunks = [
+                    {
+                        "text": chunk["text"],
+                        "item_id": chunk["item_id"],
+                        "vector": embeddings[i],
+                    }
+                    for i, chunk in enumerate(raw_chunks)
+                ]
+            except KeyError:
+                raise ValueError("Input data must have 'text' and 'item_id' fields")
+        else:
+            raise ValueError("Unsupported data type")
 
         logging.info("Indexing data...")
         self.index.load(processed_chunks, id_field="item_id")

@@ -48,7 +48,9 @@ embedding_models:
     dim: 1024
 ```
 
-raw_data_path should link to a json file of the following form:
+#### raw_data_path should link to a json file in either of the following forms.
+
+List of raw_chunks:
 ```json
 [
   "chunk0",
@@ -57,7 +59,19 @@ raw_data_path should link to a json file of the following form:
 ]
 ```
 
-labeled_data_path should link to a json file of the following form:
+List of chunks with appropriate form:
+```json
+[
+  {
+    "text": "page content of the chunk",
+    "item_id": "abc:123"
+  }
+]
+```
+
+**Note:** if the item_id is not specified in the input type it will be assumed to be the positional index of the chunk at retrieval.
+
+#### labeled_data_path should link to a json file of the following form:
 ```json
 [
   {

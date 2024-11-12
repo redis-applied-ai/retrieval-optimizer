@@ -10,8 +10,18 @@ def raw_chunk_path():
 
 
 @pytest.fixture
+def struct_chunk_path():
+    return "optimize/tests/data/test_struct_chunks.json"
+
+
+@pytest.fixture
 def labeled_chunks_path():
     return "optimize/tests/data/labeled_data.json"
+
+
+@pytest.fixture
+def struct_labeled_chunk_path():
+    return "optimize/tests/data/struct_labeled_data.json"
 
 
 def test_eval_happy_path(raw_chunk_path, labeled_chunks_path, test_db_client):
@@ -43,6 +53,42 @@ def test_eval_happy_path(raw_chunk_path, labeled_chunks_path, test_db_client):
     assert persisted["metrics"]["retrieval"]["precision_at_k"] == 0.25
     assert persisted["metrics"]["retrieval"]["recall_at_k"] == 1.0
     assert persisted["metrics"]["retrieval"]["f1_at_k"] == 0.4
+
+    # cleanup
+    test_db_client.flushall()
+
+
+def test_eval_struct_chunks(
+    struct_chunk_path, struct_labeled_chunk_path, test_db_client
+):
+    e = Eval(
+        model_provider="hf",
+        model_str="sentence-transformers/all-MiniLM-L6-v2",
+        embedding_dim=384,
+        raw_data_path=struct_chunk_path,
+        labeled_data_path=struct_labeled_chunk_path,
+        input_data_type="json",
+        vector_data_type="float32",
+        algorithm="flat",
+        ret_k=4,
+        find_threshold=False,
+    )
+
+    index = SearchIndex.from_dict(e.schema)
+    index.set_client(test_db_client)
+
+    info = index.info()
+
+    # test data loaded and indexed
+    assert info["num_docs"] == 3
+
+    e.calc_metrics()
+
+    persisted = index.client.json().get(f"eval:{e.settings.test_id}")
+
+    assert persisted["metrics"]["retrieval"]["precision_at_k"] != 0.00
+    assert persisted["metrics"]["retrieval"]["recall_at_k"] != 0.0
+    assert persisted["metrics"]["retrieval"]["f1_at_k"] != 0.0
 
     # cleanup
     test_db_client.flushall()
