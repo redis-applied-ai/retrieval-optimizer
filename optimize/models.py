@@ -45,6 +45,9 @@ class EmbeddingModel(BaseModel):
 
 
 class StudyConfig(BaseModel):
+    study_id: str = str(uuid4())
+    algorithms: list[str]
+    vector_data_types: list[str]
     raw_data_path: str
     input_data_type: str
     labeled_data_path: str
@@ -53,7 +56,7 @@ class StudyConfig(BaseModel):
     weights: list[float]
     n_trials: int
     n_jobs: int
-    ret_k: tuple[int, int] = (1, 10)
-    ef_runtime: tuple[int, int] = (10, 50)
-    ef_construction: tuple[int, int] = (100, 300)
-    m: tuple[int, int] = (8, 64)
+    ret_k: tuple[int, int] = [1, 10]
+    ef_runtime: list = [10, 50]
+    ef_construction: list = [100, 300]
+    m: list = [8, 64]
