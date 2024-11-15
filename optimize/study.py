@@ -6,14 +6,14 @@ import numpy as np
 import optuna
 import pandas as pd
 import yaml
+from redis import Redis
+from redis.commands.json.path import Path
 
 from optimize.eval import Eval
 from optimize.models import StudyConfig
 
-# Mute all warnings
 warnings.filterwarnings("ignore")
 
-# TODO: this should be a DB call
 METRICS = {
     "ret_k": [],
     "algorithm": [],
@@ -130,13 +130,7 @@ def objective(trial, study_config):
     return cost_fn(metric_values, study_config.weights)
 
 
-def run_study():
-    parser = argparse.ArgumentParser(
-        description="Tune hyperparameters for Redis Vector Store given config file"
-    )
-    parser.add_argument("--config", type=str, help="Path to config file")
-    args = parser.parse_args()
-    study_config = load_config(args.config)
+def run_study(study_config: StudyConfig):
 
     study = optuna.create_study(
         study_name="test",
@@ -154,9 +148,24 @@ def run_study():
     print(f"Best Configuration: {best_trial.number}: {best_trial.params}:")
     print(f"Best Score: {best_trial.values}")
 
-    pd.DataFrame(METRICS).to_csv(
-        f"optimize/results/{study_config.study_id[:6]}-metrics.csv"
-    )
+    # save study metrics to DB
+    client = Redis.from_url(study_config.redis_url)
 
-    df = study.trials_dataframe()
-    df.to_csv(f"optimize/results/{study_config.study_id[:6]}-optuna_res.csv")
+    client.json().set(f"study:{study_config.study_id}", Path.root_path(), METRICS)
+
+    # pd.DataFrame(METRICS).to_csv(
+    #     f"optimize/results/{study_config.study_id[:6]}-metrics.csv"
+    # )
+
+    # df = study.trials_dataframe()
+    # df.to_csv(f"optimize/results/{study_config.study_id[:6]}-optuna_res.csv")
+
+
+def run_study_cli():
+    parser = argparse.ArgumentParser(
+        description="Tune hyperparameters for Redis Vector Store given config file"
+    )
+    parser.add_argument("--config", type=str, help="Path to config file")
+    args = parser.parse_args()
+    study_config = load_config(args.config)
+    run_study(study_config)
