@@ -46,6 +46,7 @@ class EmbeddingModel(BaseModel):
 
 class StudyConfig(BaseModel):
     study_id: str = str(uuid4())
+    redis_url: str = "redis://localhost:6379/0"
     algorithms: list[str]
     vector_data_types: list[str]
     raw_data_path: str

@@ -1,4 +1,4 @@
-from optimize.study import run_study
+from optimize.study import run_study_cli
 
 if __name__ == "__main__":
-    run_study()
+    run_study_cli()
