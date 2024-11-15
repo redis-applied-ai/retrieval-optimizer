@@ -1,0 +1,16 @@
+index:
+  name: jmazda
+  prefix: jmazda
+  storage_type: json
+fields:
+  - name: chunk_id
+    type: tag
+  - name: content
+    type: text
+  - name: text_embedding
+    type: vector
+    attrs:
+      dims: 384
+      distance_metric: cosine
+      algorithm: flat
+      datatype: float32

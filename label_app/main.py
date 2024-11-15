@@ -81,6 +81,37 @@ class IndexInfo(BaseModel):
     index_schema: dict
 
 
+def parse_index_items(items, storage_type="hash"):
+    if storage_type == "json":
+        return [
+            {"item_id": item[ID_FIELD_NAME], "text": item[CHUNK_FIELD_NAME]}
+            for item in items
+        ]
+    else:
+        return [
+            {
+                "item_id": item[ID_FIELD_NAME.encode()].decode(),
+                "text": item[CHUNK_FIELD_NAME.encode()].decode(),
+            }
+            for item in items
+        ]
+
+
+def get_items_by_pattern(client, pattern, storage_type="hash"):
+    cursor = "0"
+    items = []
+
+    while cursor != 0:
+        cursor, keys = client.scan(cursor=cursor, match=pattern)
+        for key in keys:
+            if storage_type == "json":
+                items.append(client.json().get(key))
+            else:
+                items.append(client.hgetall(key))
+
+    return parse_index_items(items, storage_type)
+
+
 @app.get("/index_info")
 async def index_info():
     try:
@@ -138,6 +169,22 @@ async def export_labeled_data():
     if obj:
         with open(save_path, "w") as f:
             json.dump(obj, f)
+
+    return save_path
+
+
+@app.post("/export_raw")
+async def export_raw():
+    save_path = os.getenv("RAW_DATA_PATH", "label_app/data/raw_data.json")
+
+    items = get_items_by_pattern(
+        client,
+        f"{schema_dict['index']['prefix']}:*",
+        schema_dict["index"].get("storage_type", "hash"),
+    )
+
+    with open(save_path, "w") as f:
+        json.dump(items, f)
 
     return save_path
 

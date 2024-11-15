@@ -31,11 +31,8 @@ def check_sort_imports():
 
 
 def check_lint():
-    subprocess.run(["pylint", "--rcfile=.pylintrc", "."], check=True)
-
-
-def mypy():
     subprocess.run(["python", "-m", "mypy", "."], check=True)
+    subprocess.run(["pylint", "--rcfile=.pylintrc", "."], check=True)
 
 
 def test():

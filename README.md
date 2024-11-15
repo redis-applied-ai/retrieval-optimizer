@@ -24,9 +24,9 @@ The study config looks like this (see ex_study_config.yaml in the root of the pr
 
 ```yaml
 # path to data files for easy read
-raw_data_path: "data/2008-mazda3-chunks.json"
+raw_data_path: "label_app/data/2008-mazda3-chunks.json"
 input_data_type: "json"
-labeled_data_path: "data/mazda_labeled_items.json"
+labeled_data_path: "label_app/data/mazda_labeled_items.json"
 # metrics to be used in objective function
 metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"]
 # weight of each metric
@@ -86,7 +86,7 @@ List of chunks with appropriate form:
 If you already have a labeled data file running the optimization is as simple as:
 
 ```
-python optimize.py --config ex_study_config.yaml
+poetry run python -m optimize.main --config optimize/ex_study_config.yaml
 ```
 
 Note if you haven't already:
