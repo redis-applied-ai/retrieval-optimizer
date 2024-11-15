@@ -26,7 +26,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # these need to correspond to the fields within the schema for the optimization to work
 ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "chunk_id")
 CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "content")
-CACHE_FOLDER = os.getenv("MODEL_CACHE", "")
+CACHE_FOLDER = os.getenv("MODEL_CACHE", "cached_models")
 STATIC_FOLDER = os.getenv("STATIC_FOLDER", "label_app/static")
 
 if CACHE_FOLDER:

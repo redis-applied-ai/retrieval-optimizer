@@ -95,6 +95,8 @@
     </div>
 
     <script>
+        const domain = 'http://localhost:8000';
+
         new Vue({
             el: '#app',
             data: {
@@ -117,34 +119,34 @@
                 },
                 handleSearch(event) {
                     // TODO: domain should read from an environment variable
-                    axios.post(`http://localhost:8000/query?user_query=${this.question}&k=${this.k}`).then(response => {
+                    axios.post(`${domain}/query?user_query=${this.question}&k=${this.k}`).then(response => {
                         this.chunks = response.data;
                     });
                 },
                 getIndexInfo() {
-                    axios.get('http://localhost:8000/index_info').then(response => {
+                    axios.get(`${domain}/index_info`).then(response => {
                         this.indexInfo = response.data;
                     });
                 },
                 getLabeledData() {
-                    axios.get('http://localhost:8000/labeled_data').then(response => {
+                    axios.get(`${domain}/labeled_data`).then(response => {
                         this.labeledData = response.data;
                     });
                 },
                 exportRaw() {
                     // TODO: output where it was saved to
-                    axios.post('http://localhost:8000/export_raw').then(response => {
+                    axios.post(`${domain}/export_raw`).then(response => {
                         alert(`Raw data saved ${response.data}`);
                     });
                 },
                 exportLabeledData() {
-                    axios.post('http://localhost:8000/export_labeled_data').then(response => {
+                    axios.post(`${domain}/export_labeled_data`).then(response => {
                         this.exportLabeledData = response.data;
                     });
                     alert('Labeled data saved to file!');
                 },
                 saveLabeledSet() {
-                    axios.post('http://localhost:8000/save', {
+                    axios.post(`${domain}/save`, {
                         query: this.question,
                         relevant_item_ids: this.selectedChunkIds
                     }).then(response => {
