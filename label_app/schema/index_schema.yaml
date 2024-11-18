@@ -6,6 +6,8 @@ fields:
   type: tag
   attrs:
     sortable: true
+- name: doc_title
+  type: text
 - name: content
   type: text
 - name: text_embedding
