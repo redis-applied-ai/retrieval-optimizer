@@ -1,0 +1,17 @@
+index:
+  name: mazda
+  prefix: mazda
+fields:
+- name: chunk_id
+  type: tag
+  attrs:
+    sortable: true
+- name: content
+  type: text
+- name: text_embedding
+  type: vector
+  attrs:
+    dims: 384
+    distance_metric: cosine
+    algorithm: hnsw
+    datatype: float32

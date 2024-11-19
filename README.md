@@ -55,6 +55,9 @@ As a list of dict with attributes `text` and `item_id`:
 
 To make it easier to get started you can use the labeling tool within this project against your existing redis index to create the necessary input data for the optimization.
 
+**Note:** If you have never populated a Redis vector index see [examples/getting_started/process_data.ipynb](examples/getting_started/process_data.ipynb). If you already have a Redis index running update the SCHEMA_PATH variable in your environment and proceed.
+
+
 ## Create .env
 ```
 touch label_app/.env
