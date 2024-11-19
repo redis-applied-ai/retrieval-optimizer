@@ -136,15 +136,14 @@ embedding_models:
 
 ## Running with command line
 
+```
+poetry install
+```
+
 If you already have a labeled data file running the optimization is as simple as:
 
 ```
 poetry run python -m optimize.main --config optimize/ex_study_config.yaml
-```
-
-Note if you haven't already:
-```
-pip install -r requirements.txt
 ```
 
 ## For a step by step example
