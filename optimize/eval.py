@@ -72,6 +72,7 @@ class Eval:
         self.precision_at_k = None
         self.recall_at_k = None
         self.avg_query_latency = None
+        self.obj_val = None
 
         self.init_index()
 
