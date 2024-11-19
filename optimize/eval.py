@@ -69,6 +69,9 @@ class Eval:
         self.best_threshold = None
         self.max_f1 = None
         self.f1_at_k = None
+        self.precision_at_k = None
+        self.recall_at_k = None
+        self.avg_query_latency = None
 
         self.init_index()
 
@@ -189,7 +192,12 @@ class Eval:
     def calc_metrics(self):
         if self.find_retrieval:
             asyncio.run(run_ret_samples(self.settings, self.schema))
-            self.f1_at_k = calc_ret_metrics(self.settings)
+            (
+                self.f1_at_k,
+                self.precision_at_k,
+                self.recall_at_k,
+                self.avg_query_latency,
+            ) = calc_ret_metrics(self.settings)
 
         if self.find_threshold:
             asyncio.run(run_threshold_samples(self.settings, self.schema))

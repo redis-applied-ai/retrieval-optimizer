@@ -27,6 +27,8 @@ METRICS = {
     "f1@k": [],
     "embedding_latency": [],
     "indexing_time": [],
+    "avg_query_latency": [],
+    "obj_val": [],
 }
 
 
@@ -50,6 +52,8 @@ def update_metric_row(eval_obj):
     METRICS["f1@k"].append(eval_obj.f1_at_k)
     METRICS["embedding_latency"].append(eval_obj.embedding_latency)
     METRICS["indexing_time"].append(eval_obj.total_indexing_time)
+    METRICS["avg_query_latency"].append(eval_obj.avg_query_latency)
+    METRICS["obj_val"].append(eval_obj.obj_val)
 
 
 def cost_fn(metrics: list, weights: list):
@@ -117,17 +121,16 @@ def objective(trial, study_config):
 
     e.calc_metrics()
 
-    update_metric_row(e)
-
     norm_index_time = norm_metric(e.total_indexing_time)
     norm_latency = norm_metric(e.embedding_latency)
 
     metric_values = [e.f1_at_k, norm_index_time, norm_latency]
 
-    print(f"Metrics: {metric_values}")
+    e.obj_val = cost_fn(metric_values, study_config.weights)
 
-    # TODO: define better objective function, normalize, and maybe make tunable
-    return cost_fn(metric_values, study_config.weights)
+    update_metric_row(e)
+
+    return e.obj_val
 
 
 def run_study(study_config: StudyConfig):
@@ -142,23 +145,16 @@ def run_study(study_config: StudyConfig):
     obj = partial(objective, study_config=study_config)
 
     study.optimize(obj, n_trials=study_config.n_trials, n_jobs=study_config.n_jobs)
-    print(f"Completed Bayesian optimization...")
+    print(f"Completed Bayesian optimization... \n\n")
 
     best_trial = study.best_trial
-    print(f"Best Configuration: {best_trial.number}: {best_trial.params}:")
-    print(f"Best Score: {best_trial.values}")
+    print(f"Best Configuration: {best_trial.number}: {best_trial.params}:\n\n")
+    print(f"Best Score: {best_trial.values}\n\n")
 
     # save study metrics to DB
     client = Redis.from_url(study_config.redis_url)
 
     client.json().set(f"study:{study_config.study_id}", Path.root_path(), METRICS)
-
-    # pd.DataFrame(METRICS).to_csv(
-    #     f"optimize/results/{study_config.study_id[:6]}-metrics.csv"
-    # )
-
-    # df = study.trials_dataframe()
-    # df.to_csv(f"optimize/results/{study_config.study_id[:6]}-optuna_res.csv")
 
 
 def run_study_cli():
