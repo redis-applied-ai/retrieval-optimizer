@@ -58,19 +58,29 @@ def test_find_optimum_distance_threshold():
 
 def test_calc_ret_metrics(monkeypatch, settings):
     mock_redis = MagicMock()
+    mock_lat = 0.1
     mock_redis.json().get.return_value = {
         "distance_samples": {
             "retrieval": {
                 "responses": [
-                    {"ground_truth": [1, 2, 3], "retrieved": [1, 2, 4]},
-                    {"ground_truth": [1, 2, 3], "retrieved": [1, 3, 5]},
+                    {
+                        "ground_truth": [1, 2, 3],
+                        "retrieved": [1, 2, 4],
+                        "query_latency": 0.2,
+                    },
+                    {
+                        "ground_truth": [1, 2, 3],
+                        "retrieved": [1, 3, 5],
+                        "query_latency": 0.1,
+                    },
                 ]
             }
         }
     }
     monkeypatch.setattr("optimize.calc_metrics.Redis.from_url", lambda _: mock_redis)
-    overall_f1_at_k = calc_ret_metrics(settings)
-    assert overall_f1_at_k == 2 / 3
+    f1_at_k, prec, recall, latency = calc_ret_metrics(settings)
+    assert f1_at_k == prec == recall == 2 / 3
+    assert round(latency, 2) == 0.15
 
 
 def test_calc_best_threshold(monkeypatch, settings):

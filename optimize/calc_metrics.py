@@ -34,6 +34,8 @@ def calc_ret_metrics(settings: Settings):
     ret_samples = res["distance_samples"]["retrieval"]["responses"]
     ret = pd.DataFrame.from_records(ret_samples)
 
+    avg_query_latency = ret["query_latency"].mean()
+
     # Calculate precision and recall at k for each query
     ret["precision_at_k"] = ret.apply(
         lambda row: precision_at_k(
@@ -67,10 +69,16 @@ def calc_ret_metrics(settings: Settings):
             "precision_at_k": overall_precision_at_k,
             "recall_at_k": overall_recall_at_k,
             "f1_at_k": overall_f1_at_k,
+            "avg_query_latency": avg_query_latency,
         },
     )
 
-    return overall_f1_at_k
+    return (
+        overall_f1_at_k,
+        overall_precision_at_k,
+        overall_recall_at_k,
+        avg_query_latency,
+    )
 
 
 def calc_precision_recall_f1(conf_matrix):

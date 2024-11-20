@@ -124,12 +124,15 @@ async def connect_to_index(settings: Settings, schema):
 
 
 async def query_index_ret(index, sample):
-    items = [r for r in await index.query(sample["vector_query"])]
+    start = time.time()
+    res = await index.query(sample["vector_query"])
+    latency = time.time() - start
+
     cos_dists = []
     retrieved = []
-    for i in items:
-        cos_dists.append(i["vector_distance"])
-        retrieved.append(i["item_id"])
+    for r in res:
+        cos_dists.append(r["vector_distance"])
+        retrieved.append(r["item_id"])
 
     return {
         "query": sample["query"],
@@ -137,6 +140,7 @@ async def query_index_ret(index, sample):
         "ground_truth": sample["ground_truth"],
         "cos_dists": cos_dists,
         "retrieved": retrieved,
+        "query_latency": latency,
     }
 
 
