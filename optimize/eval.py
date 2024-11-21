@@ -10,7 +10,7 @@ from redisvl.index import SearchIndex
 
 from optimize.calc_metrics import calc_best_threshold, calc_ret_metrics
 from optimize.models import DataSettings, EmbeddingSettings, IndexSettings, Settings
-from optimize.retriever import DefaultRetriever, Retriever
+from optimize.retriever import DefaultQueryRetriever, Retriever
 from optimize.threshold_sample import run_threshold_samples
 from optimize.utilities import embed_chunks, get_embedding_model
 
@@ -35,7 +35,8 @@ class Eval:
         test_id=None,
         find_threshold=True,
         find_retrieval=True,
-        retriever: Retriever = DefaultRetriever,
+        retriever: Retriever = DefaultQueryRetriever,
+        additional_schema_fields=None,
     ):
         self.find_threshold = find_threshold
         self.find_retrieval = find_retrieval
@@ -77,6 +78,7 @@ class Eval:
         self.obj_val = None
 
         self.retriever = retriever
+        self.additional_schema_fields = additional_schema_fields
 
         self.init_index()
 
@@ -87,7 +89,7 @@ class Eval:
 
     def create_index_schema(self):
         # dynamically create schema based on settings for eval variability
-        self.schema = {
+        _schema = {
             "index": {"name": f"{self.settings.test_id}", "prefix": "rvl"},
             "fields": [
                 {"name": "text", "type": "text"},
@@ -109,6 +111,12 @@ class Eval:
                 },
             ],
         }
+
+        if self.additional_schema_fields:
+            for field in self.additional_schema_fields:
+                _schema["fields"].append(field)
+
+        self.schema = _schema
 
     def create_index(self):
         client = Redis().from_url(self.settings.redis_url)
@@ -153,6 +161,7 @@ class Eval:
                     {
                         "text": chunk["text"],
                         "item_id": chunk["item_id"],
+                        **chunk["query_metadata"],
                         "vector": embeddings[i],
                     }
                     for i, chunk in enumerate(raw_chunks)

@@ -1,0 +1,30 @@
+input_data_type: "json" # currently only json but considering alternatives
+raw_data_path: "data/combined_chunks.json" # path to data files for easy read
+labeled_data_path: "data/combined_labeled.json" # labeled data
+
+# optimization config
+n_trials: 10
+n_jobs: 1
+
+# metrics to be used in objective function
+metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"] 
+weights: [1, 1, 1] # weight of each metric respectively 
+
+# optimization decision variables
+algorithms: ["flat", "hnsw"] # indexing algorithms variables
+vector_data_types: ["float32", "float16"] # vector type of indexed vectors
+ret_k: [1, 10] # potential range of value to be sampled during study
+
+# ef_runtime, ef_construction, and m only relevant if HNSW indexing
+ef_runtime: [10, 20, 30, 50]
+ef_construction: [100, 150, 200, 250, 300]
+m: [8, 16, 64]
+
+# embedding models to be used
+embedding_models:
+  - provider: "hf"
+    model: "sentence-transformers/all-MiniLM-L6-v2"
+    dim: 384
+  - provider: "hf"
+    model: "intfloat/e5-large-v2"
+    dim: 1024

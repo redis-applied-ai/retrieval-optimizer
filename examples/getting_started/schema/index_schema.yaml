@@ -1,12 +1,16 @@
 index:
-  name: mazda
-  prefix: mazda
+  name: cars
+  prefix: cars
 fields:
-- name: chunk_id
+- name: item_id
   type: tag
   attrs:
     sortable: true
-- name: content
+- name: make
+  type: tag
+- name: model
+  type: tag
+- name: text
   type: text
 - name: text_embedding
   type: vector

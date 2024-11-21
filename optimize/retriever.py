@@ -7,7 +7,9 @@ from typing import List
 
 from pydantic import BaseModel
 from redis.commands.json.path import Path
+from redisvl.index import SearchIndex
 from redisvl.query import VectorQuery
+from redisvl.utils.vectorize import BaseVectorizer
 
 from optimize.models import LabeledItem, Settings
 from optimize.utilities import connect_to_index, get_embedding_model, load_labeled_items
@@ -29,41 +31,57 @@ class RetrieverOutput(BaseModel):
 
 
 class Retriever(ABC):
-    def __init__(self, settings: Settings, schema):
+    def __init__(self, settings: Settings, schema: dict):
         self.settings = settings
         self.schema = schema
 
     @abstractmethod
     def process_samples(
-        query_fn, k: int, labeled_items: List[LabeledItem], emb_model, dtype
+        self,
+        k: int,
+        labeled_items: List[LabeledItem],
+        emb_model: BaseVectorizer,
+        dtype: str,
     ):
         pass
 
     @abstractmethod
-    async def define_async_tasks(index, sample) -> RetrieverOutput:
+    async def define_async_tasks(index: SearchIndex, sample: dict) -> RetrieverOutput:
         pass
 
     @abstractmethod
-    async def run_persist_async(self, query_fn):
+    async def run_persist_async(self):
         pass
 
 
-class DefaultRetriever(Retriever):
-    @staticmethod
-    def process_samples(k: int, labeled_items: List[LabeledItem], emb_model, dtype):
-        """Process samples to be executed against the index
+class QueryRetriever(Retriever):
+    def query_fn(
+        self, emb_model: BaseVectorizer, labeled_item: LabeledItem, dtype: str, k: int
+    ) -> VectorQuery:
+        raise NotImplementedError(
+            f"Need to implement with {emb_model=}, {labeled_item=}, {dtype=}, {k=}"
+        )
 
-        Args:
-            query_fn (_type_): _description_
-            k (int): _description_
-            labeled_items (List[LabeledItem]): _description_
-            emb_model (_type_): _description_
-            dtype (_type_): _description_
 
-        Returns:
-            _type_: _description_
-        """
+class DefaultQueryRetriever(QueryRetriever):
+    def query_fn(
+        self, emb_model: BaseVectorizer, labeled_item: LabeledItem, dtype: str, k: int
+    ):
+        return VectorQuery(
+            vector=emb_model.embed(labeled_item.query, as_buffer=True, dtype=dtype),
+            vector_field_name="vector",
+            return_score=True,
+            return_fields=["item_id"],
+            num_results=k,
+        )
 
+    def process_samples(
+        self,
+        k: int,
+        labeled_items: List[LabeledItem],
+        emb_model: BaseVectorizer,
+        dtype: str,
+    ) -> dict:
         ret_samples = []
 
         for labeled_item in labeled_items:
@@ -72,15 +90,7 @@ class DefaultRetriever(Retriever):
                     "query": labeled_item.query,
                     "ground_truth": labeled_item.relevant_item_ids,
                     "is_pos": 1,
-                    "vector_query": VectorQuery(
-                        vector=emb_model.embed(
-                            labeled_item.query, as_buffer=True, dtype=dtype
-                        ),
-                        vector_field_name="vector",
-                        return_score=True,
-                        return_fields=["item_id"],
-                        num_results=k,
-                    ),
+                    "vector_query": self.query_fn(emb_model, labeled_item, dtype, k),
                 }
             )
 

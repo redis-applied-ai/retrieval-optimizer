@@ -1,0 +1,38 @@
+[
+    {
+        "query": "What type of oil should I use for this car?",
+        "query_metadata": {
+            "make": "volvo",
+            "model": "c30"
+        },
+        "relevant_item_ids": [
+            "volvo_c30:183"
+        ]
+    },
+    {
+        "query": "What should I do if the brake fluid is low?",
+        "query_metadata": {
+            "make": "volvo",
+            "model": "c30"
+        },
+        "relevant_item_ids": [
+            "volvo_c30:32",
+            "volvo_c30:143",
+            "volvo_c30:31"
+        ]
+    },
+    {
+        "query": "What sized tires should I put on this car?",
+        "query_metadata": {
+            "make": "volvo",
+            "model": "c30"
+        },
+        "relevant_item_ids": [
+            "volvo_c30:122",
+            "volvo_c30:186",
+            "volvo_c30:126",
+            "volvo_c30:187",
+            "volvo_c30:181"
+        ]
+    }
+]

@@ -1,0 +1,21 @@
+index:
+  name: cars
+  prefix: cars
+fields:
+- name: item_id
+  type: tag
+  attrs:
+    sortable: true
+- name: make
+  type: tag
+- name: model
+  type: tag
+- name: text
+  type: text
+- name: text_embedding
+  type: vector
+  attrs:
+    dims: 384
+    distance_metric: cosine
+    algorithm: hnsw
+    datatype: float32
