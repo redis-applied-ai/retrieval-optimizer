@@ -10,7 +10,8 @@ from redisvl.index import SearchIndex
 
 from optimize.calc_metrics import calc_best_threshold, calc_ret_metrics
 from optimize.models import DataSettings, EmbeddingSettings, IndexSettings, Settings
-from optimize.sample_index import run_ret_samples, run_threshold_samples
+from optimize.retriever import DefaultRetriever, Retriever
+from optimize.threshold_sample import run_threshold_samples
 from optimize.utilities import embed_chunks, get_embedding_model
 
 
@@ -34,6 +35,7 @@ class Eval:
         test_id=None,
         find_threshold=True,
         find_retrieval=True,
+        retriever: Retriever = DefaultRetriever,
     ):
         self.find_threshold = find_threshold
         self.find_retrieval = find_retrieval
@@ -74,6 +76,8 @@ class Eval:
         self.avg_query_latency = None
         self.obj_val = None
 
+        self.retriever = retriever
+
         self.init_index()
 
     def init_index(self):
@@ -84,9 +88,7 @@ class Eval:
     def create_index_schema(self):
         # dynamically create schema based on settings for eval variability
         self.schema = {
-            "index": {
-                "name": f"{self.settings.test_id}",
-            },
+            "index": {"name": f"{self.settings.test_id}", "prefix": "rvl"},
             "fields": [
                 {"name": "text", "type": "text"},
                 {"name": "id", "type": "tag"},
@@ -192,7 +194,7 @@ class Eval:
 
     def calc_metrics(self):
         if self.find_retrieval:
-            asyncio.run(run_ret_samples(self.settings, self.schema))
+            asyncio.run(self.retriever(self.settings, self.schema).run_persist_async())
             (
                 self.f1_at_k,
                 self.precision_at_k,
