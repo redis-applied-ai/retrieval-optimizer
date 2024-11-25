@@ -3,7 +3,7 @@ raw_data_path: "data/combined_chunks.json" # path to data files for easy read
 labeled_data_path: "data/combined_labeled.json" # labeled data
 
 # optimization config
-n_trials: 10
+n_trials: 20
 n_jobs: 1
 
 # metrics to be used in objective function

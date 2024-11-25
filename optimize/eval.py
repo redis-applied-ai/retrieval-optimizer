@@ -10,9 +10,9 @@ from redisvl.index import SearchIndex
 
 from optimize.calc_metrics import calc_best_threshold, calc_ret_metrics
 from optimize.models import DataSettings, EmbeddingSettings, IndexSettings, Settings
-from optimize.retriever import DefaultQueryRetriever, Retriever
+from optimize.retrievers import DefaultQueryRetriever, Retriever
 from optimize.threshold_sample import run_threshold_samples
-from optimize.utilities import embed_chunks, get_embedding_model
+from optimize.utilities import embed_chunks, get_embedding_model, schema_from_settings
 
 
 class Eval:
@@ -33,7 +33,7 @@ class Eval:
         m=0,
         redis_url="redis://localhost:6379/0",
         test_id=None,
-        find_threshold=True,
+        find_threshold=False,
         find_retrieval=True,
         retriever: Retriever = DefaultQueryRetriever,
         additional_schema_fields=None,
@@ -50,7 +50,6 @@ class Eval:
                 dim=embedding_dim,
             ),
             data=DataSettings(
-                data_path=raw_data_path,
                 input_data_type=input_data_type,
                 labeled_data_path=labeled_data_path,
                 raw_data_path=raw_data_path,
@@ -89,34 +88,7 @@ class Eval:
 
     def create_index_schema(self):
         # dynamically create schema based on settings for eval variability
-        _schema = {
-            "index": {"name": f"{self.settings.test_id}", "prefix": "rvl"},
-            "fields": [
-                {"name": "text", "type": "text"},
-                {"name": "id", "type": "tag"},
-                {"name": "file_name", "type": "tag"},
-                {"name": "item_id", "type": "tag"},
-                {
-                    "name": "vector",
-                    "type": "vector",
-                    "attrs": {
-                        "dims": self.settings.embedding.dim,
-                        "distance_metric": self.settings.index.distance_metric,
-                        "algorithm": self.settings.index.algorithm,
-                        "datatype": self.settings.index.vector_data_type,
-                        "ef_construction": self.settings.index.ef_construction,
-                        "ef_runtime": self.settings.index.ef_runtime,
-                        "m": self.settings.index.m,
-                    },
-                },
-            ],
-        }
-
-        if self.additional_schema_fields:
-            for field in self.additional_schema_fields:
-                _schema["fields"].append(field)
-
-        self.schema = _schema
+        self.schema = schema_from_settings(self.settings, self.additional_schema_fields)
 
     def create_index(self):
         client = Redis().from_url(self.settings.redis_url)

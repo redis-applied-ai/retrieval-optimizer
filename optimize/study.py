@@ -1,4 +1,5 @@
 import argparse
+import logging
 import warnings
 from functools import partial
 
@@ -11,7 +12,7 @@ from redis.commands.json.path import Path
 
 from optimize.eval import Eval
 from optimize.models import StudyConfig
-from optimize.retriever import DefaultQueryRetriever
+from optimize.retrievers import DefaultQueryRetriever
 
 warnings.filterwarnings("ignore")
 
@@ -56,7 +57,7 @@ def update_metric_row(eval_obj):
     METRICS["indexing_time"].append(eval_obj.total_indexing_time)
     METRICS["avg_query_latency"].append(eval_obj.avg_query_latency)
     METRICS["obj_val"].append(eval_obj.obj_val)
-    METRICS["retriever"].append(str(eval_obj.retriever))
+    METRICS["retriever"].append(str(eval_obj.retriever.__name__))
 
 
 def cost_fn(metrics: list, weights: list):
@@ -80,11 +81,15 @@ def objective(trial, study_config, custom_retrievers):
         )
         obj = custom_retrievers[retriever_name]
         retriever = obj["retriever"]
-        additional_schema_fields = custom_retrievers.get(
+        additional_schema_fields = custom_retrievers[retriever_name].get(
             "additional_schema_fields", None
         )
     else:
         retriever = DefaultQueryRetriever
+
+    logging.info(
+        f"Running for Retriever: {retriever.__name__} with {additional_schema_fields=}"
+    )
 
     algorithm = trial.suggest_categorical("algorithm", study_config.algorithms)
     vec_dtype = trial.suggest_categorical("var_dtype", study_config.vector_data_types)
@@ -114,8 +119,7 @@ def objective(trial, study_config, custom_retrievers):
             ef_runtime=ef_runtime,
             ef_construction=ef_construction,
             m=m,
-            ret_k=ret_k,  # maybe make a independent variable
-            find_threshold=False,
+            ret_k=ret_k,
             retriever=retriever,
             additional_schema_fields=additional_schema_fields,
         )
