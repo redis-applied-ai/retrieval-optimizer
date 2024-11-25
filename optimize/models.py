@@ -35,6 +35,7 @@ class Settings(BaseModel):
 
 class LabeledItem(BaseModel):
     query: str
+    query_metadata: dict = {}
     relevant_item_ids: list[str]
 
 

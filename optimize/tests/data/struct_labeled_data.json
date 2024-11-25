@@ -1,8 +1,20 @@
 [
     {
         "query": "A question about latin",
+        "query_metadata": {
+            "language": "latin"
+        },
         "relevant_item_ids": [
-            "abc:1"
+            "latin:1"
+        ]
+    },
+    {
+        "query": "A question about spanish",
+        "query_metadata": {
+            "language": "spanish"
+        },
+        "relevant_item_ids": [
+            "spanish:1"
         ]
     }
 ]
