@@ -133,7 +133,7 @@ class Eval:
                     {
                         "text": chunk["text"],
                         "item_id": chunk["item_id"],
-                        **chunk["query_metadata"],
+                        **(chunk.get("query_metadata", {})),
                         "vector": embeddings[i],
                     }
                     for i, chunk in enumerate(raw_chunks)

@@ -86,6 +86,7 @@ def objective(trial, study_config, custom_retrievers):
         )
     else:
         retriever = DefaultQueryRetriever
+        additional_schema_fields = None
 
     logging.info(
         f"Running for Retriever: {retriever.__name__} with {additional_schema_fields=}"
