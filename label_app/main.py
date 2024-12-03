@@ -19,13 +19,13 @@ load_dotenv()
 # Change to schema config that represents your data as needed
 # make sure model used matches the dimensions of the schema
 # if in .env file will load from there otherwise will default to the provided
-SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/index_schema.yaml")
+SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/cars_schema.yaml")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # these need to correspond to the fields within the schema for the optimization to work
-ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "chunk_id")
-CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "content")
+ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "item_id")
+CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "text")
 CACHE_FOLDER = os.getenv("MODEL_CACHE", "")
 STATIC_FOLDER = os.getenv("STATIC_FOLDER", "label_app/static")
 
