@@ -104,6 +104,7 @@ class Retriever(ABC):
 
 
 class QueryRetriever(Retriever):
+
     def query_fn(
         self, emb_model: BaseVectorizer, labeled_item: LabeledItem, dtype: str, k: int
     ) -> VectorQuery:
@@ -113,6 +114,7 @@ class QueryRetriever(Retriever):
 
 
 class DefaultQueryRetriever(QueryRetriever):
+
     def query_fn(
         self, emb_model: BaseVectorizer, labeled_item: LabeledItem, dtype: str, k: int
     ):
@@ -203,6 +205,7 @@ class DefaultQueryRetriever(QueryRetriever):
 
 
 class AggregationRetriever(Retriever):
+
     def query_fn(
         self, emb_model: BaseVectorizer, labeled_item: LabeledItem, dtype: str, k: int
     ):
@@ -214,10 +217,8 @@ class AggregationRetriever(Retriever):
             num_results=k,
         )
 
-        relevant_tokens = f"{labeled_item.query_metadata['make']} {labeled_item.query_metadata['model']}"
-
         # this is custom since I know the structure of my input data
-        base_full_text_query = str(Text("text") % tokenize_query(relevant_tokens))
+        base_full_text_query = str(Text("text") % tokenize_query(labeled_item.query))
 
         # Add the optional flag, "~", so that this doesn't also act as a strict text filter
         full_text_query = f"(~{base_full_text_query})"

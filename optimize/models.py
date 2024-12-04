@@ -39,12 +39,6 @@ class LabeledItem(BaseModel):
     relevant_item_ids: list[str]
 
 
-class EmbeddingModel(BaseModel):
-    provider: str
-    model: str
-    dim: int
-
-
 class StudyConfig(BaseModel):
     study_id: str = str(uuid4())
     redis_url: str = "redis://localhost:6379/0"
@@ -53,7 +47,7 @@ class StudyConfig(BaseModel):
     raw_data_path: str
     input_data_type: str
     labeled_data_path: str
-    embedding_models: list[EmbeddingModel]
+    embedding_models: list[EmbeddingSettings]
     metrics: list[str]
     weights: list[float]
     n_trials: int
