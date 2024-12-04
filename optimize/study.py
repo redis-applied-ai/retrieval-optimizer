@@ -60,6 +60,12 @@ def update_metric_row(eval_obj):
     METRICS["retriever"].append(str(eval_obj.retriever.__name__))
 
 
+def persist_metrics(client, eval_obj, study_id):
+    update_metric_row(eval_obj)
+    logging.info(f"Saving metrics for study: {study_id}, {METRICS=}")
+    client.json().set(f"study:{study_id}", Path.root_path(), METRICS)
+
+
 def cost_fn(metrics: list, weights: list):
     return np.dot(np.array(metrics), np.array(weights))
 
@@ -68,7 +74,7 @@ def norm_metric(value: float):
     return 1 / (1 + value)
 
 
-def objective(trial, study_config, custom_retrievers):
+def objective(trial, study_config, custom_retrievers, redis_client):
     # we want to max the overall F1 score
     model_info = trial.suggest_categorical(
         "model_info",
@@ -86,6 +92,7 @@ def objective(trial, study_config, custom_retrievers):
         )
     else:
         retriever = DefaultQueryRetriever
+        additional_schema_fields = None
 
     logging.info(
         f"Running for Retriever: {retriever.__name__} with {additional_schema_fields=}"
@@ -150,12 +157,13 @@ def objective(trial, study_config, custom_retrievers):
 
     e.obj_val = cost_fn(metric_values, study_config.weights)
 
-    update_metric_row(e)
+    # save results as we go in case of failure
+    persist_metrics(redis_client, e, study_config.study_id)
 
     return e.obj_val
 
 
-def run_study(study_config: StudyConfig, custom_retrievers=None):
+def run_study(study_config: StudyConfig, custom_retrievers=None, save_pandas=True):
 
     study = optuna.create_study(
         study_name="test",
@@ -164,21 +172,32 @@ def run_study(study_config: StudyConfig, custom_retrievers=None):
         pruner=optuna.pruners.MedianPruner(),
     )
 
+    # save study metrics to DB
+    client = Redis.from_url(study_config.redis_url)
+
     obj = partial(
-        objective, study_config=study_config, custom_retrievers=custom_retrievers
+        objective,
+        study_config=study_config,
+        custom_retrievers=custom_retrievers,
+        redis_client=client,
     )
 
-    study.optimize(obj, n_trials=study_config.n_trials, n_jobs=study_config.n_jobs)
+    study.optimize(
+        obj,
+        n_trials=study_config.n_trials,
+        n_jobs=study_config.n_jobs,
+    )
+
     print(f"Completed Bayesian optimization... \n\n")
 
     best_trial = study.best_trial
     print(f"Best Configuration: {best_trial.number}: {best_trial.params}:\n\n")
     print(f"Best Score: {best_trial.values}\n\n")
 
-    # save study metrics to DB
-    client = Redis.from_url(study_config.redis_url)
-
-    client.json().set(f"study:{study_config.study_id}", Path.root_path(), METRICS)
+    if save_pandas:
+        pd.DataFrame(METRICS).to_csv(
+            f"data/{study_config.study_id[:6]}_dbpedia_250_metrics.csv", index=False
+        )
 
 
 def run_study_cli():

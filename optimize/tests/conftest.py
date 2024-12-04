@@ -3,7 +3,14 @@ import os
 import pytest
 from redis import Redis
 
-from optimize.models import DataSettings, EmbeddingSettings, IndexSettings, Settings
+from optimize.models import (
+    DataSettings,
+    EmbeddingModel,
+    EmbeddingSettings,
+    IndexSettings,
+    Settings,
+    StudyConfig,
+)
 
 TEST_REDIS_URL = os.getenv("TEST_REDIS_URL", "redis://localhost:6379/0")
 
@@ -32,5 +39,34 @@ def settings():
 
 
 @pytest.fixture
+def embedding_model():
+    return EmbeddingModel(
+        provider="hf", model="sentence-transformers/all-MiniLM-L6-v2", dim=384
+    )
+
+
+@pytest.fixture
 def test_db_client():
     return Redis.from_url(TEST_REDIS_URL)
+
+
+@pytest.fixture
+def study_config(embedding_model):
+    return StudyConfig(
+        study_id="study_id",
+        redis_url=TEST_REDIS_URL,
+        raw_data_path="optimize/tests/data/test_struct_chunks.json",
+        labeled_data_path="optimize/tests/data/struct_labeled_data.json",
+        input_data_type="json",
+        vector_data_types=["float32"],
+        algorithms=["flat"],
+        ef_runtime=[0],
+        ef_construction=[0],
+        m=[0],
+        ret_k=(3, 3),
+        embedding_models=[embedding_model],
+        n_trials=1,
+        n_jobs=1,
+        metrics=["f1_at_k", "embedding_latency", "total_indexing_time"],
+        weights=[1, 1, 1],
+    )
