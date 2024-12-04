@@ -1,4 +1,5 @@
 import argparse
+import logging
 import warnings
 from functools import partial
 
@@ -11,6 +12,7 @@ from redis.commands.json.path import Path
 
 from optimize.eval import Eval
 from optimize.models import StudyConfig
+from optimize.retrievers import DefaultQueryRetriever
 
 warnings.filterwarnings("ignore")
 
@@ -29,6 +31,7 @@ METRICS = {
     "indexing_time": [],
     "avg_query_latency": [],
     "obj_val": [],
+    "retriever": [],
 }
 
 
@@ -54,6 +57,7 @@ def update_metric_row(eval_obj):
     METRICS["indexing_time"].append(eval_obj.total_indexing_time)
     METRICS["avg_query_latency"].append(eval_obj.avg_query_latency)
     METRICS["obj_val"].append(eval_obj.obj_val)
+    METRICS["retriever"].append(str(eval_obj.retriever.__name__))
 
 
 def cost_fn(metrics: list, weights: list):
@@ -64,11 +68,28 @@ def norm_metric(value: float):
     return 1 / (1 + value)
 
 
-def objective(trial, study_config):
+def objective(trial, study_config, custom_retrievers):
     # we want to max the overall F1 score
     model_info = trial.suggest_categorical(
         "model_info",
         [m.model_dump() for m in study_config.embedding_models],
+    )
+
+    if custom_retrievers:
+        retriever_name = trial.suggest_categorical(
+            "retriever", list(custom_retrievers.keys())
+        )
+        obj = custom_retrievers[retriever_name]
+        retriever = obj["retriever"]
+        additional_schema_fields = custom_retrievers[retriever_name].get(
+            "additional_schema_fields", None
+        )
+    else:
+        retriever = DefaultQueryRetriever
+        additional_schema_fields = None
+
+    logging.info(
+        f"Running for Retriever: {retriever.__name__} with {additional_schema_fields=}"
     )
 
     algorithm = trial.suggest_categorical("algorithm", study_config.algorithms)
@@ -99,8 +120,9 @@ def objective(trial, study_config):
             ef_runtime=ef_runtime,
             ef_construction=ef_construction,
             m=m,
-            ret_k=ret_k,  # maybe make a independent variable
-            find_threshold=False,
+            ret_k=ret_k,
+            retriever=retriever,
+            additional_schema_fields=additional_schema_fields,
         )
     else:
         print(
@@ -116,7 +138,8 @@ def objective(trial, study_config):
             vector_data_type=vec_dtype,
             algorithm=algorithm,
             ret_k=ret_k,
-            find_threshold=False,
+            retriever=retriever,
+            additional_schema_fields=additional_schema_fields,
         )
 
     e.calc_metrics()
@@ -133,7 +156,7 @@ def objective(trial, study_config):
     return e.obj_val
 
 
-def run_study(study_config: StudyConfig):
+def run_study(study_config: StudyConfig, custom_retrievers=None):
 
     study = optuna.create_study(
         study_name="test",
@@ -142,7 +165,9 @@ def run_study(study_config: StudyConfig):
         pruner=optuna.pruners.MedianPruner(),
     )
 
-    obj = partial(objective, study_config=study_config)
+    obj = partial(
+        objective, study_config=study_config, custom_retrievers=custom_retrievers
+    )
 
     study.optimize(obj, n_trials=study_config.n_trials, n_jobs=study_config.n_jobs)
     print(f"Completed Bayesian optimization... \n\n")

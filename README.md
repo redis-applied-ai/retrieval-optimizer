@@ -149,5 +149,6 @@ If you already have a labeled data file running the optimization is as simple as
 poetry run python -m optimize.main --config optimize/ex_study_config.yaml
 ```
 
-## For a step by step example
-See [examples/getting_started/retrieval_optimizer.ipynb](examples/getting_started/retrieval_optimizer.ipynb)
+## Step by step examples
+1. Getting started: [examples/getting_started/retrieval_optimizer.ipynb](examples/getting_started/retrieval_optimizer.ipynb)
+2. Adding custom retrieval [examples/gettting_started/custom_retriever_optimizer.ipynb](examples/getting_started/custom_retriever_optimizer.ipynb)

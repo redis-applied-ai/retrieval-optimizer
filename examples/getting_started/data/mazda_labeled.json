@@ -1,91 +1,139 @@
 [
     {
         "query": "At what speed should I shift from 2 to 3 with a manual transmission?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "86"
+            "mazda_3:86"
         ]
     },
     {
         "query": "How do I set the cruise control?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "92",
-            "93"
+            "mazda_3:92",
+            "mazda_3:93"
         ]
     },
     {
         "query": "What does the ABS system do?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "84",
-            "75",
-            "105"
+            "mazda_3:84",
+            "mazda_3:75",
+            "mazda_3:105"
         ]
     },
     {
         "query": "What type of oil should I use for this car?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "188"
+            "mazda_3:188"
         ]
     },
     {
         "query": "How do I arm the security system for this car?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "68",
-            "69"
+            "mazda_3:68",
+            "mazda_3:69"
         ]
     },
     {
         "query": "What should I do if brake fluid is low?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "105",
-            "83"
+            "mazda_3:105",
+            "mazda_3:83"
         ]
     },
     {
         "query": "When should I replace wiper blades?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "195",
-            "194"
+            "mazda_3:195",
+            "mazda_3:194"
         ]
     },
     {
         "query": "What sized tires can I put on this car?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "226",
-            "227",
-            "229",
-            "76"
+            "mazda_3:226",
+            "mazda_3:227",
+            "mazda_3:229",
+            "mazda_3:76"
         ]
     },
     {
         "query": "How to jump start this car?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "176",
-            "175"
+            "mazda_3:176",
+            "mazda_3:175"
         ]
     },
     {
         "query": "How do I stop paint damage?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "179",
-            "209",
-            "211",
-            "212",
-            "213",
-            "210"
+            "mazda_3:179",
+            "mazda_3:209",
+            "mazda_3:211",
+            "mazda_3:212",
+            "mazda_3:213",
+            "mazda_3:210"
         ]
     },
     {
         "query": "What lightbulbs should I use for this car?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "242",
-            "205"
+            "mazda_3:242",
+            "mazda_3:205"
         ]
     },
     {
         "query": "What is the ideal shift range from 4 to 5th?",
+        "query_metadata": {
+            "make": "mazda",
+            "model": "3"
+        },
         "relevant_item_ids": [
-            "86",
-            "90"
+            "mazda_3:86",
+            "mazda_3:90"
         ]
     }
 ]

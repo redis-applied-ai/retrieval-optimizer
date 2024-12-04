@@ -10,8 +10,9 @@ from redisvl.index import SearchIndex
 
 from optimize.calc_metrics import calc_best_threshold, calc_ret_metrics
 from optimize.models import DataSettings, EmbeddingSettings, IndexSettings, Settings
-from optimize.sample_index import run_ret_samples, run_threshold_samples
-from optimize.utilities import embed_chunks, get_embedding_model
+from optimize.retrievers import DefaultQueryRetriever, Retriever
+from optimize.threshold_sample import run_threshold_samples
+from optimize.utilities import embed_chunks, get_embedding_model, schema_from_settings
 
 
 class Eval:
@@ -32,8 +33,10 @@ class Eval:
         m=0,
         redis_url="redis://localhost:6379/0",
         test_id=None,
-        find_threshold=True,
+        find_threshold=False,
         find_retrieval=True,
+        retriever: Retriever = DefaultQueryRetriever,
+        additional_schema_fields=None,
     ):
         self.find_threshold = find_threshold
         self.find_retrieval = find_retrieval
@@ -47,7 +50,6 @@ class Eval:
                 dim=embedding_dim,
             ),
             data=DataSettings(
-                data_path=raw_data_path,
                 input_data_type=input_data_type,
                 labeled_data_path=labeled_data_path,
                 raw_data_path=raw_data_path,
@@ -74,6 +76,9 @@ class Eval:
         self.avg_query_latency = None
         self.obj_val = None
 
+        self.retriever = retriever
+        self.additional_schema_fields = additional_schema_fields
+
         self.init_index()
 
     def init_index(self):
@@ -83,30 +88,7 @@ class Eval:
 
     def create_index_schema(self):
         # dynamically create schema based on settings for eval variability
-        self.schema = {
-            "index": {
-                "name": f"{self.settings.test_id}",
-            },
-            "fields": [
-                {"name": "text", "type": "text"},
-                {"name": "id", "type": "tag"},
-                {"name": "file_name", "type": "tag"},
-                {"name": "item_id", "type": "tag"},
-                {
-                    "name": "vector",
-                    "type": "vector",
-                    "attrs": {
-                        "dims": self.settings.embedding.dim,
-                        "distance_metric": self.settings.index.distance_metric,
-                        "algorithm": self.settings.index.algorithm,
-                        "datatype": self.settings.index.vector_data_type,
-                        "ef_construction": self.settings.index.ef_construction,
-                        "ef_runtime": self.settings.index.ef_runtime,
-                        "m": self.settings.index.m,
-                    },
-                },
-            ],
-        }
+        self.schema = schema_from_settings(self.settings, self.additional_schema_fields)
 
     def create_index(self):
         client = Redis().from_url(self.settings.redis_url)
@@ -151,6 +133,7 @@ class Eval:
                     {
                         "text": chunk["text"],
                         "item_id": chunk["item_id"],
+                        **(chunk.get("query_metadata", {})),
                         "vector": embeddings[i],
                     }
                     for i, chunk in enumerate(raw_chunks)
@@ -192,7 +175,7 @@ class Eval:
 
     def calc_metrics(self):
         if self.find_retrieval:
-            asyncio.run(run_ret_samples(self.settings, self.schema))
+            asyncio.run(self.retriever(self.settings, self.schema).run_persist_async())
             (
                 self.f1_at_k,
                 self.precision_at_k,
