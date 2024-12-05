@@ -1,0 +1,19 @@
+index:
+  name: dbpedia
+  prefix: dbpedia
+fields:
+- name: item_id
+  type: tag
+  attrs:
+    sortable: true
+- name: title
+  type: text
+- name: text
+  type: text
+- name: text_embedding
+  type: vector
+  attrs:
+    dims: 1536
+    distance_metric: cosine
+    algorithm: hnsw
+    datatype: float32

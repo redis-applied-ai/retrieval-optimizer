@@ -148,7 +148,7 @@ class Eval:
 
         while float(self.index.info()["percent_indexed"]) < 1:
             time.sleep(1)
-            logging.info("...")
+            logging.info(f"Indexing progress: {self.index.info()['percent_indexed']}")
 
         self.total_indexing_time = float(self.index.info()["total_indexing_time"])
         logging.info(f"Data indexed. {self.total_indexing_time=}s")

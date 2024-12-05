@@ -7,8 +7,8 @@ n_trials: 20
 n_jobs: 1
 
 # metrics to be used in objective function
-metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"] 
-weights: [1, 1, 1] # weight of each metric respectively 
+metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"]
+weights: [1, 1, 1] # weight of each metric respectively
 
 # optimization decision variables
 algorithms: ["flat", "hnsw"] # indexing algorithms variables

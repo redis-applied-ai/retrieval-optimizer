@@ -1,0 +1,3 @@
+,ret_k,algorithm,ef_construction,ef_runtime,m,distance_metric,vector_data_type,model,model_dim,f1@k,embedding_latency,indexing_time,avg_query_latency,obj_val,retriever
+0,5,hnsw,200,10,16,cosine,float32,sentence-transformers/all-MiniLM-L6-v2,384,0.4202380952380952,327.8557229042053,470652.4375,0.032465243339538576,0.42328106713094416,DefaultQueryRetriever
+1,5,flat,0,0,0,cosine,float32,sentence-transformers/all-MiniLM-L6-v2,384,0.4023809523809524,288.1341600418091,119634.09375,1.2210756301879884,0.405847913186975,DefaultQueryRetriever

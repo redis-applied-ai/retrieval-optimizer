@@ -11,7 +11,11 @@ from redis import Redis
 from redis.commands.json.path import Path
 from redisvl.index import SearchIndex
 from redisvl.query import VectorQuery
-from redisvl.utils.vectorize import BaseVectorizer, HFTextVectorizer
+from redisvl.utils.vectorize import (
+    BaseVectorizer,
+    HFTextVectorizer,
+    OpenAITextVectorizer,
+)
 
 # load contents of .env file if present
 load_dotenv()
@@ -19,9 +23,10 @@ load_dotenv()
 # Change to schema config that represents your data as needed
 # make sure model used matches the dimensions of the schema
 # if in .env file will load from there otherwise will default to the provided
-SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/cars_schema.yaml")
+SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/index_schema.yaml")
+EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "hf")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6381/0")
 
 # these need to correspond to the fields within the schema for the optimization to work
 ID_FIELD_NAME = os.getenv("ID_FIELD_NAME", "item_id")
@@ -29,11 +34,14 @@ CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "text")
 CACHE_FOLDER = os.getenv("MODEL_CACHE", "")
 STATIC_FOLDER = os.getenv("STATIC_FOLDER", "label_app/static")
 
-if CACHE_FOLDER:
-    emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{CACHE_FOLDER}")
-else:
-    # HF model currently but could swap for any available with redisvl Vectorizer
-    emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
+if EMBEDDING_PROVIDER == "hf":
+    if CACHE_FOLDER:
+        emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{CACHE_FOLDER}")
+    else:
+        # HF model currently but could swap for any available with redisvl Vectorizer
+        emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
+elif EMBEDDING_PROVIDER == "openai":
+    emb_model: BaseVectorizer = OpenAITextVectorizer(EMBEDDING_MODEL)
 
 # connect to redis
 client = Redis.from_url(REDIS_URL)
@@ -114,21 +122,12 @@ def get_items_by_pattern(client, pattern, storage_type="hash"):
 
 @app.get("/index_info")
 async def index_info():
-    try:
-        info = index.info()
-        return {
-            **schema_dict,
-            "labeled_data_key": LABELED_DATA_KEY,
-            "num_docs": info["num_docs"],
-        }
-    except Exception as e:
-        return {
-            "index": {
-                "name": "couldn't load index",
-                "labeled_data_key": LABELED_DATA_KEY,
-                "num_docs": 0,
-            }
-        }
+    info = index.info()
+    return {
+        **schema_dict,
+        "labeled_data_key": LABELED_DATA_KEY,
+        "num_docs": info["num_docs"],
+    }
 
 
 @app.post("/query")
