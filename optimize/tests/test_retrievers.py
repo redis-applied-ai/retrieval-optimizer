@@ -54,3 +54,6 @@ def test_aggregation_retriever(
     res = test_db_client.json().get(f"eval:{settings.test_id}")
 
     assert res["distance_samples"]["retrieval"]["responses"][0]["retrieved"] == ["2"]
+
+    # cleanup
+    test_db_client.flushall()
