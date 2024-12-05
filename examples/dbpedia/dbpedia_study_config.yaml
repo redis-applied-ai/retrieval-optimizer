@@ -1,5 +1,5 @@
 input_data_type: "json" # currently only json but considering alternatives
-raw_data_path: "data/dbpedia_250k.json" # path to data files for easy read
+raw_data_path: "data/dbpedia_500k.json" # path to data files for easy read
 labeled_data_path: "data/dbpedia_labeled.json" # labeled data
 
 # optimization config
@@ -25,6 +25,3 @@ embedding_models:
   - provider: "hf"
     model: "sentence-transformers/all-MiniLM-L6-v2"
     dim: 384
-  # - provider: "hf"
-  #   model: "intfloat/e5-large-v2"
-  #   dim: 1024
