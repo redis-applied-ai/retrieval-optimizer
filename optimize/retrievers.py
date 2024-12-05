@@ -3,14 +3,14 @@
 import asyncio
 import logging
 import time
-from typing import Any, Dict, List
+from typing import List
 
 from pydantic import BaseModel
 from redis.commands.json.path import Path
 from redis.commands.search.aggregation import AggregateRequest, Desc
 from redisvl.index import SearchIndex
 from redisvl.query import VectorQuery
-from redisvl.redis.utils import convert_bytes, make_dict
+from redisvl.redis.utils import make_dict
 from redisvl.utils.vectorize import BaseVectorizer
 
 from optimize.models import LabeledItem, Settings
@@ -250,14 +250,18 @@ class AggregationRetriever(Retriever):
         return ret_samples
 
     @staticmethod
-    async def define_async_tasks(index: SearchIndex, sample: dict) -> RetrieverOutput:
+    async def define_async_tasks(
+        index: SearchIndex, sample: dict, alpha=0.3
+    ) -> RetrieverOutput:
         # Build the aggregation request
         req = (
             AggregateRequest(sample["vector_query"].query_string())
             .scorer("BM25")
             .add_scores()
             .apply(cosine_similarity="(2 - @vector_distance)/2", bm25_score="@__score")
-            .apply(hybrid_score=f"0.3*@bm25_score + 0.7*@cosine_similarity")
+            .apply(
+                hybrid_score=f"{str(alpha)}*@bm25_score + {str(1-alpha)}*@cosine_similarity"
+            )
             .load(
                 "item_id",
                 "text",
