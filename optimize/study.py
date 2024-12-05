@@ -163,7 +163,7 @@ def objective(trial, study_config, custom_retrievers, redis_client):
     return e.obj_val
 
 
-def run_study(study_config: StudyConfig, custom_retrievers=None, save_pandas=True):
+def run_study(study_config: StudyConfig, custom_retrievers=None, save_pandas=False):
 
     study = optuna.create_study(
         study_name="test",
