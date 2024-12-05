@@ -1,0 +1,27 @@
+input_data_type: "json" # currently only json but considering alternatives
+raw_data_path: "data/dbpedia_500k.json" # path to data files for easy read
+labeled_data_path: "data/dbpedia_labeled.json" # labeled data
+
+# optimization config
+n_trials: 3
+n_jobs: 1
+
+# metrics to be used in objective function
+metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"] 
+weights: [1, 1, 1] # weight of each metric respectively 
+
+# optimization decision variables
+algorithms: ["flat", "hnsw"] # indexing algorithms variables
+vector_data_types: ["float32"] # vector type of indexed vectors
+ret_k: [2, 6] # potential range of value to be sampled during study
+
+# ef_runtime, ef_construction, and m only relevant if HNSW indexing
+ef_runtime: [10]
+ef_construction: [200]
+m: [16]
+
+# embedding models to be used
+embedding_models:
+  - provider: "hf"
+    model: "sentence-transformers/all-MiniLM-L6-v2"
+    dim: 384
