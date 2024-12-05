@@ -2,21 +2,34 @@ import os
 
 import pytest
 from redis import Redis
+from redisvl.utils.vectorize import HFTextVectorizer
 
 from optimize.models import (
     DataSettings,
-    EmbeddingModel,
     EmbeddingSettings,
     IndexSettings,
     Settings,
     StudyConfig,
 )
+from optimize.utilities import schema_from_settings
 
 TEST_REDIS_URL = os.getenv("TEST_REDIS_URL", "redis://localhost:6379/0")
 
 
 @pytest.fixture
-def settings():
+def embedding_model_settings():
+    return EmbeddingSettings(
+        provider="hf", model="sentence-transformers/all-MiniLM-L6-v2", dim=384
+    )
+
+
+@pytest.fixture
+def embedding_model():
+    return HFTextVectorizer("sentence-transformers/all-MiniLM-L6-v2")
+
+
+@pytest.fixture
+def settings(embedding_model_settings):
     return Settings(
         test_id="test_id",
         index=IndexSettings(
@@ -27,7 +40,7 @@ def settings():
             ef_runtime=10,
             m=8,
         ),
-        embedding=EmbeddingSettings(provider="provider", model="model", dim=10),
+        embedding=embedding_model_settings,
         data=DataSettings(
             labeled_data_path="labeled_data_path",
             raw_data_path="raw_data_path",
@@ -39,19 +52,12 @@ def settings():
 
 
 @pytest.fixture
-def embedding_model():
-    return EmbeddingModel(
-        provider="hf", model="sentence-transformers/all-MiniLM-L6-v2", dim=384
-    )
-
-
-@pytest.fixture
 def test_db_client():
     return Redis.from_url(TEST_REDIS_URL)
 
 
 @pytest.fixture
-def study_config(embedding_model):
+def study_config(embedding_model_settings):
     return StudyConfig(
         study_id="study_id",
         redis_url=TEST_REDIS_URL,
@@ -64,9 +70,14 @@ def study_config(embedding_model):
         ef_construction=[0],
         m=[0],
         ret_k=(3, 3),
-        embedding_models=[embedding_model],
+        embedding_models=[embedding_model_settings],
         n_trials=1,
         n_jobs=1,
         metrics=["f1_at_k", "embedding_latency", "total_indexing_time"],
         weights=[1, 1, 1],
     )
+
+
+@pytest.fixture
+def schema(settings):
+    return schema_from_settings(settings)
