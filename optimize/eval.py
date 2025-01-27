@@ -35,7 +35,7 @@ class Eval:
         test_id=None,
         find_threshold=False,
         find_retrieval=True,
-        retriever: Retriever = DefaultQueryRetriever,
+        retriever: type[Retriever] = DefaultQueryRetriever,
         additional_schema_fields=None,
     ):
         self.find_threshold = find_threshold

@@ -39,7 +39,7 @@ def schema_from_settings(settings: Settings, additional_schema_fields=None):
 
     if additional_schema_fields:
         for field in additional_schema_fields:
-            schema["fields"].append(field)
+            schema["fields"].append(field)  # type: ignore
     return schema
 
 

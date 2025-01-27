@@ -16,7 +16,7 @@ from optimize.retrievers import DefaultQueryRetriever
 
 warnings.filterwarnings("ignore")
 
-METRICS = {
+METRICS: dict = {
     "ret_k": [],
     "algorithm": [],
     "ef_construction": [],
