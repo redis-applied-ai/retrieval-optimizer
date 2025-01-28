@@ -1,10 +1,6 @@
 import subprocess
 
 
-def load_data():
-    print("")
-
-
 def start_app():
     # start app
     subprocess.run(
@@ -22,17 +18,20 @@ def check_format():
     subprocess.run(["black", "--check", "."], check=True)
 
 
+def check_mypy():
+    subprocess.run(["python", "-m", "mypy", "."], check=True)
+
+
+def check_lint():
+    subprocess.run(["pylint", "--rcfile=.pylintrc", "."], check=True)
+
+
 def sort_imports():
     subprocess.run(["isort", ".", "./tests/", "--profile", "black"], check=True)
 
 
 def check_sort_imports():
     subprocess.run(["isort", ".", "--check-only", "--profile", "black"], check=True)
-
-
-def check_lint():
-    subprocess.run(["python", "-m", "mypy", "."], check=True)
-    subprocess.run(["pylint", "--rcfile=.pylintrc", "."], check=True)
 
 
 def test():

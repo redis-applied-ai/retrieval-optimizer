@@ -8,9 +8,9 @@ from typing import Any, Dict, List
 from pydantic import BaseModel
 from redis.commands.json.path import Path
 from redis.commands.search.aggregation import AggregateRequest, Desc
-from redisvl.index import SearchIndex
+from redisvl.index import AsyncSearchIndex, SearchIndex
 from redisvl.query import VectorQuery
-from redisvl.redis.utils import convert_bytes, make_dict
+from redisvl.redis.utils import make_dict
 from redisvl.utils.vectorize import BaseVectorizer
 
 from optimize.models import LabeledItem, Settings
@@ -95,7 +95,9 @@ class Retriever(ABC):
         pass
 
     @abstractmethod
-    async def define_async_tasks(index: SearchIndex, sample: dict) -> RetrieverOutput:
+    async def define_async_tasks(
+        self, index: AsyncSearchIndex, sample: dict
+    ) -> RetrieverOutput:
         pass
 
     @abstractmethod
@@ -130,7 +132,7 @@ class DefaultQueryRetriever(QueryRetriever):
         labeled_items: List[LabeledItem],
         emb_model: BaseVectorizer,
         dtype: str,
-    ) -> dict:
+    ) -> List[Dict[str, Any]]:
         ret_samples = []
 
         for labeled_item in labeled_items:
@@ -145,8 +147,9 @@ class DefaultQueryRetriever(QueryRetriever):
 
         return ret_samples
 
-    @staticmethod
-    async def define_async_tasks(index, sample) -> RetrieverOutput:
+    async def define_async_tasks(
+        self, index: AsyncSearchIndex, sample: dict
+    ) -> RetrieverOutput:
         """Defines how samples are executed against the index
 
         Args:
@@ -248,12 +251,13 @@ class AggregationRetriever(Retriever):
 
         return ret_samples
 
-    @staticmethod
-    async def define_async_tasks(index: SearchIndex, sample: dict) -> RetrieverOutput:
+    async def define_async_tasks(
+        self, index: SearchIndex | AsyncSearchIndex, sample: dict
+    ) -> RetrieverOutput:
         # Build the aggregation request
         req = (
             AggregateRequest(sample["vector_query"].query_string())
-            .scorer("BM25")
+            .scorer("BM25")  # type: ignore
             .add_scores()
             .apply(cosine_similarity="(2 - @vector_distance)/2", bm25_score="@__score")
             .apply(hybrid_score=f"0.3*@bm25_score + 0.7*@cosine_similarity")

@@ -37,6 +37,7 @@ ipykernel = "^6.29.5"
 [tool.poetry.scripts]
 start = "label_app.main:app"
 start-app = "scripts:start_app"
+check-mypy = "scripts:check_mypy"
 load = "scripts:load"
 format = "scripts:format"
 check-format = "scripts:check_format"

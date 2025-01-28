@@ -58,7 +58,7 @@ class StudyConfig(BaseModel):
     weights: list[float]
     n_trials: int
     n_jobs: int
-    ret_k: tuple[int, int] = [1, 10]
+    ret_k: tuple[int, int] = [1, 10]  # type: ignore # pydantic vs mypy
     ef_runtime: list = [10, 50]
     ef_construction: list = [100, 300]
     m: list = [8, 64]

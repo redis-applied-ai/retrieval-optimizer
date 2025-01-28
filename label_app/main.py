@@ -11,11 +11,9 @@ from redis import Redis
 from redis.commands.json.path import Path
 from redisvl.index import SearchIndex
 from redisvl.query import VectorQuery
-from redisvl.utils.vectorize import (
-    BaseVectorizer,
-    HFTextVectorizer,
-    OpenAITextVectorizer,
-)
+
+from optimize.models import EmbeddingSettings
+from optimize.utilities import get_embedding_model
 
 # load contents of .env file if present
 load_dotenv()
@@ -26,6 +24,7 @@ load_dotenv()
 SCHEMA_PATH = os.getenv("SCHEMA_PATH", "label_app/schema/index_schema.yaml")
 EMBEDDING_PROVIDER = os.getenv("EMBEDDING_PROVIDER", "hf")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+EMBEDDING_DIM = os.getenv("EMBEDDING_DIM", 384)
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6381/0")
 
 # these need to correspond to the fields within the schema for the optimization to work
@@ -34,14 +33,10 @@ CHUNK_FIELD_NAME = os.getenv("CHUNK_FIELD_NAME", "text")
 CACHE_FOLDER = os.getenv("MODEL_CACHE", "")
 STATIC_FOLDER = os.getenv("STATIC_FOLDER", "label_app/static")
 
-if EMBEDDING_PROVIDER == "hf":
-    if CACHE_FOLDER:
-        emb_model = HFTextVectorizer(EMBEDDING_MODEL, cache_folder=f"../{CACHE_FOLDER}")
-    else:
-        # HF model currently but could swap for any available with redisvl Vectorizer
-        emb_model: BaseVectorizer = HFTextVectorizer(EMBEDDING_MODEL)
-elif EMBEDDING_PROVIDER == "openai":
-    emb_model: BaseVectorizer = OpenAITextVectorizer(EMBEDDING_MODEL)
+emb_settings = EmbeddingSettings(
+    provider=EMBEDDING_PROVIDER, model=EMBEDDING_MODEL, dim=int(EMBEDDING_DIM)
+)
+emb_model = get_embedding_model(emb_settings)
 
 # connect to redis
 client = Redis.from_url(REDIS_URL)
