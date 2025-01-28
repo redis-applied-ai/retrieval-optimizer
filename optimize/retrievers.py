@@ -95,9 +95,8 @@ class Retriever(ABC):
         pass
 
     @abstractmethod
-    @staticmethod
     async def define_async_tasks(
-        index: AsyncSearchIndex, sample: dict
+        self, index: AsyncSearchIndex, sample: dict
     ) -> RetrieverOutput:
         pass
 
@@ -148,9 +147,8 @@ class DefaultQueryRetriever(QueryRetriever):
 
         return ret_samples
 
-    @staticmethod
     async def define_async_tasks(
-        index: AsyncSearchIndex, sample: dict
+        self, index: AsyncSearchIndex, sample: dict
     ) -> RetrieverOutput:
         """Defines how samples are executed against the index
 
@@ -253,9 +251,8 @@ class AggregationRetriever(Retriever):
 
         return ret_samples
 
-    @staticmethod
     async def define_async_tasks(
-        index: SearchIndex | AsyncSearchIndex, sample: dict
+        self, index: SearchIndex | AsyncSearchIndex, sample: dict
     ) -> RetrieverOutput:
         # Build the aggregation request
         req = (
