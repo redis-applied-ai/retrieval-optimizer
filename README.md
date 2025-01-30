@@ -1,14 +1,38 @@
-# Redis Retrieval Optimizer
+<div align="center">
+<div><img src="https://raw.githubusercontent.com/redis/redis-vl-python/main/docs/_static/Redis_Logo_Red_RGB.svg" style="width: 130px"> </div>
+<h1>Retrieval Optimizer</h1>
 
-This framework helps you determine the optimal **embedding model**, **retrieval strategy**, and **index settings** to get the best results from your vector search.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Language](https://img.shields.io/github/languages/top/redis-applied-ai/retrieval-optimizer)
+![GitHub last commit](https://img.shields.io/github/last-commit/redis-applied-ai/retrieval-optimizer)
 
-# Getting started
+</div>
+
+Search and information retrieval is a hard problem. With the proliferation of vector search tooling taking over the market, the focus has heavily shifted towards SEO and marketing wins, and away from *"captial Q"* quality.
+
+The **Retrieval Optimizer** from Redis is focused on measuring and improving retrieval quality. The framework helps determine optimal **embedding models**, **retrieval strategies**, and **index configurations** for your data and use case.
+
+
+## Prerequisitues
+1. Make sure you have the following tools available:
+   - [Docker](https://www.docker.com/products/docker-desktop/)
+   - Python >= 3.11 and [Poetry](https://python-poetry.org/docs/#installation)
+
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/redis-applied-ai/retrieval-optimizer.git
+   cd retrieval-optimizer
+   ```
 
 ## Data requirements
 
-The retrieval optimizer requires 2 sets of data in order to test optimal configurations.
+The retrieval optimizer requires 2 sets of data in order to run an optimization study.
 
-The data to be embedded, in the form:
+### Indexed data
+
+The core knowledge base of data to be embedded in Redis. Think of these as your "chunks".
+
+Expected Format:
 
 ```json
 [
@@ -19,7 +43,10 @@ The data to be embedded, in the form:
 ]
 ```
 
-Labeled data for generating the metrics that we will compared between samples, in the form:
+### Ground truth data
+Labeled ground truth data for generating the metrics that we will compared between samples.
+
+Expected Format:
 
 ```json
 [
@@ -30,76 +57,86 @@ Labeled data for generating the metrics that we will compared between samples, i
 ]
 ```
 
-Under the hood, the `item_id` is used to test if a vector query found the desired results therefore this identifier needs to be unique to the text provided as input.
-
-Note: the next section covers how to create this set of input data but if you already have them available you can skip.
+Under the hood, the `item_id` is used to test if a vector query found the desired results (chunks) therefore this identifier needs to be unique to the text provided as input.
 
 
-## Creating and labeling data
+> [!IMPORTANT]  
+> The next section covers how to create this set of input data but if you already have them available you can skip.
 
-See [examples/getting_started/populate_index.ipynb](examples/getting_started/populate_index.ipynb).
+### Example data prep guide
+
+Follow along with [examples/getting_started/populate_index.ipynb](examples/getting_started/populate_index.ipynb) to see an end-to-end example of data prep for retrieval optimization.
 
 This guide will walk you through:
 
-- chunking data
+- chunking source data
 - exporting that data to a format for use with the optimizer
 - creating vector representations of the data
 - loading them into a vector index
 
-### Creating data with labeling tool
+### Labeling ground truth data
 
-Assuming you have created data and populated a vector index with that data you can run the labeling tool for a more convenient experience.
+Sometimes you have a pre-defined dataset of queries and expected matches. However, this is NOT always the case. We built a simple web GUI to help.
 
-## Create .env
-```
-touch label_app/.env
-```
+Assuming you have created data and populated an *initial* vector index with that data you can run the labeling app for a more convenient experience.
 
-in label_app/.env
-```
-REDIS_URL=<Redis connection url>
-LABELED_DATA_PATH=<file location for exported output>
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-SCHEMA_PATH=schema/index_schema.yaml
+#### Running the data labeling app
 
-# Corresponding fields to return from index see label_app/main.py for implementation
-ID_FIELD_NAME=unique id of a chunk or any item stored in vector index
-CHUNK_FIELD_NAME=text content
-```
+1. First set up a fresh environment file:
+  ```bash
+  cp label_app/.env.template label_app/.env
+  ```
 
-## Run the gui
+2. Update the `.env` file (below is an example):
+  ```
+  REDIS_URL=<Redis connection url>
+  LABELED_DATA_PATH=<file location for exported output>
+  EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+  SCHEMA_PATH=schema/index_schema.yaml
 
-```
-docker compose up
-```
+  # Corresponding fields to return from index see label_app/main.py for implementation
+  ID_FIELD_NAME=unique id of a chunk or any item stored in vector index
+  CHUNK_FIELD_NAME=text content
+  ```
 
-The following commands will serve the app to `localhost:8000/label`.
-You can also interact with the swagger docs at `localhost:8000/docs`
+3. Environment variable options:
 
-## Once running
+  TODO -- add a table here please.
 
-The app will connect to the index specified in whatever file was provided as part of the SCHEMA_PATH. By default this is [label_app/schema/index_schema.yaml](label_app/schema/index_schema.yaml) if it connects properly you will see the name of the index and the number of documents it has indexed.
+
+4. **Run the data labeling app**
+
+  ```bash
+  docker compose up
+  ```
+
+This will serve the data labeling app at `localhost:8000/label`.
+You can also interact with the swagger docs at `localhost:8000/docs`.
+
+#### Using the data labeling app
+
+The data labeling app will connect to the index specified in whatever file was provided as part of the `SCHEMA_PATH` environment variable. By default this is [label_app/schema/index_schema.yaml](label_app/schema/index_schema.yaml) if it connects properly you will see the name of the index and the number of documents it has indexed.
 
 ![alt text](images/label_tool.png)
 
-From here you can start making queries against your index label the relevant chunks and export to a file for use in the optimization. This also a good way to get a feel for what's happening with your vector retrieval.
+From here you can start making queries against your index, label the relevant chunks, and export to a JSON file for use in the optimization. This also a good way to test what's happening with your vector retrieval.
 
 
-## Running an optimization
+# Running an optimization study
 
-With the data either created manually or with the labeling tool, you can now run the optimization.
+With your data now prepared, you can run optimization studies. A study has a **config** with defined params and ranges to test and compare with your data.
 
 ## Run in notebook
-Check out the following step by step notebook for running/understanding the optimization process:
+Check out the following step by step notebooks for running the optimization process:
 
 - Getting started: [examples/getting_started/retrieval_optimizer.ipynb](examples/getting_started/retrieval_optimizer.ipynb)
 - Adding custom retrieval [examples/gettting_started/custom_retriever_optimizer.ipynb](examples/getting_started/custom_retriever_optimizer.ipynb)
 
 
 ## Run with poetry
-### Define the study config
+### Define the config
 
-The study config looks like this (see ex_study_config.yaml in the root of the project):
+The study config looks like this (see [ex_study_config.yaml](optimize/ex_study_config.yaml) as an example):
 
 ```yaml
 # path to data files for easy read
@@ -127,24 +164,31 @@ embedding_models:
     dim: 1024
 ```
 
-### Install requirements
+### Study Config Options
+TODO -- please document in a table
 
-```
+
+
+### Poetry Install & Setup
+
+```bash
 poetry install
 ```
 
-### Execute module
-
-```
-poetry run python -m optimize.main --config optimize/ex_study_config.yaml
+```bash
+poetry run study --config optimize/ex_study_config.yaml
 ```
 
-## Technical Background
+### Example output
 
-This framework implements a fairly common pattern for optimizing hyper-parameters called Bayesian Optimization. Bayesian Optimization works by building a probabilistic model (typically Gaussian Processes) of the objective function and iteratively selecting the most promising configurations to evaluate. Unlike grid or random search, Bayesian Optimization balances exploration (trying new regions of the parameter space) and exploitation (focusing on promising areas), efficiently finding optimal hyper-parameters with fewer evaluations. This is particularly useful for expensive-to-evaluate functions, such as training machine learning models. By guiding the search using prior knowledge and updating beliefs based on observed performance, Bayesian Optimization can significantly improve both accuracy and efficiency in hyperparameter tuning.
+TODO
+
+## Technical Motivation & Background
+
+This framework implements a fairly common pattern for optimizing hyper-parameters called Bayesian Optimization using [Optuna](https://optuna.org/). **Bayesian Optimization** works by building a probabilistic model (typically Gaussian Processes) of the objective function and iteratively selecting the most promising configurations to evaluate. Unlike grid or random search, Bayesian Optimization balances exploration (trying new regions of the parameter space) and exploitation (focusing on promising areas), efficiently finding optimal hyper-parameters with fewer evaluations. This is particularly useful for expensive-to-evaluate functions, such as training machine learning models. By guiding the search using prior knowledge and updating beliefs based on observed performance, Bayesian Optimization can significantly improve both accuracy and efficiency in hyperparameter tuning.
 
 In our case, we want to **maximize** the precision and recall of our vector search system while balancing performance tradeoffs such as embedding and indexing latency. Bayesian optimization gives us an automated way of testing all the knobs at our disposal to see which ones best optimize retrieval.
 
-## Process diagram
+### Process diagram
 
 ![optimize](images/optimize_flow.png)
