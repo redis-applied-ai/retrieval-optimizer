@@ -8,12 +8,11 @@
 
 </div>
 
-Search and information retrieval is a hard problem. With the proliferation of vector search tooling taking over the market, the focus has heavily shifted towards SEO and marketing wins, and away from *"captial Q"* quality.
+Search and information retrieval is a challenging problem. With the proliferation of vector search tools in the market, focus has heavily shifted towards SEO and marketing wins, rather than fundamental quality.
 
-The **Retrieval Optimizer** from Redis is focused on measuring and improving retrieval quality. The framework helps determine optimal **embedding models**, **retrieval strategies**, and **index configurations** for your data and use case.
+The **Retrieval Optimizer** from Redis focuses on measuring and improving retrieval quality. This framework helps determine optimal **embedding models**, **retrieval strategies**, and **index configurations** for your specific data and use case.
 
-
-## Prerequisitues
+## Prerequisites
 1. Make sure you have the following tools available:
    - [Docker](https://www.docker.com/products/docker-desktop/)
    - Python >= 3.11 and [Poetry](https://python-poetry.org/docs/#installation)
@@ -26,7 +25,7 @@ The **Retrieval Optimizer** from Redis is focused on measuring and improving ret
 
 ## Data requirements
 
-The retrieval optimizer requires 2 sets of data in order to run an optimization study.
+The retrieval optimizer requires two sets of data to run an optimization study.
 
 ### Indexed data
 
@@ -101,7 +100,14 @@ Assuming you have created data and populated an *initial* vector index with that
 
 3. Environment variable options:
 
-  TODO -- add a table here please.
+  | Variable | Example Value | Description | Required |
+  |----------|--------------|-------------|----------|
+  | REDIS_URL | redis://localhost:6379 | Redis connection URL | Yes |
+  | LABELED_DATA_PATH | label_app/data/labeled.json | File path where labeled data will be exported | Yes |
+  | EMBEDDING_MODEL | sentence-transformers/all-MiniLM-L6-v2 | Name of the embedding model to use | Yes |
+  | SCHEMA_PATH | schema/index_schema.yaml | Path to the index schema configuration | Yes |
+  | ID_FIELD_NAME | item_id | Field name containing unique identifier in index | Yes |
+  | CHUNK_FIELD_NAME | text | Field name containing text content in index | Yes |
 
 
 4. **Run the data labeling app**
@@ -165,7 +171,7 @@ embedding_models:
 ```
 
 ### Study Config Options
-TODO -- please document in a table
+TODO -- please document in a table like the env vars above
 
 
 

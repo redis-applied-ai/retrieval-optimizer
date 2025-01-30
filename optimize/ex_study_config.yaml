@@ -1,7 +1,7 @@
 # path to data files for easy read
-raw_data_path: "label_app/data/raw_data.json"
 input_data_type: "json"
-labeled_data_path: "label_app/data/mazda-labeled.json"
+raw_data_path: "label_app/data/2008-mazda3-chunks.json"
+labeled_data_path: "label_app/data/mazda-labeled-rewritten.json"
 # metrics to be used in objective function
 metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"]
 # weight of each metric
