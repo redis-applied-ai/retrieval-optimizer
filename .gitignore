@@ -2,3 +2,4 @@ __pycache__/
 optimize/results/*
 examples/dbpedia/data/*
 .mypy_cache/
+.env

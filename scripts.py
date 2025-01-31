@@ -1,4 +1,11 @@
 import subprocess
+import sys
+
+
+def study():
+    # Get all arguments after the study command and pass them through
+    args = ["python", "-m", "optimize.main"] + sys.argv[1:]
+    subprocess.run(args, check=True)
 
 
 def start_app():

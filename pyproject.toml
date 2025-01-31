@@ -7,12 +7,12 @@ authors = ["Robert Shelton  <robert.shelton@redis.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 fastapi = "^0.111.0"
 uvicorn = "^0.30.1"
 ipython = "^8.26.0"
 numpy = "1.26.4"
-redisvl = "^0.3.6"
+redisvl = "^0.3.9"
 sentence-transformers = "^3.0.1"
 sentencepiece = "^0.2.0"
 redis = "^5.0.7"
@@ -35,6 +35,7 @@ anyio = {extras = ["trio"], version = "^4.4.0"}
 ipykernel = "^6.29.5"
 
 [tool.poetry.scripts]
+study = "scripts:study"
 start = "label_app.main:app"
 start-app = "scripts:start_app"
 check-mypy = "scripts:check_mypy"
