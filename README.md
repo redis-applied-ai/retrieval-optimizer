@@ -171,7 +171,6 @@ embedding_models:
 ```
 
 ### Study Config Options
-Here’s your data in the requested format:
 
 | Variable              | Example Value                                      | Description                                      | Required |
 |----------------------|------------------------------------------------|--------------------------------------------------|----------|
@@ -186,12 +185,10 @@ Here’s your data in the requested format:
 | **ret_k**          | [1, 10]                                       | Range of values to be tested for `k` in retrieval            | ✅        |
 | **embedding_models** | **Provider:** hf  <br> **Model:** sentence-transformers/all-MiniLM-L6-v2  <br> **Dim:** 384  | List of embedding models and their dimensions  | ✅        |
 | **input_data_type**  | json                                           | Type of input data                               |    defaults to example    |
-| **redis_url**  | `redis://localhost:6379/0`                           | Connection string for redis instance                               |      defaults to example   |
+| **redis_url**  | `redis://localhost:6379`                           | Connection string for redis instance                               |      defaults to example   |
 | **ef_runtime**     | [10, 20, 30, 50]                              | Max top candidates during search for HNSW                       |   defaults to example    |
 | **ef_construction** | [100, 150, 200, 250, 300]                     | Max number of connected neighbors to consider during graph building for HNSW                |     defaults to example   |
 | **m**              | [8, 16, 64]                                    | Max number of outgoing edges for each node in graph per layer for HNSW           |   defaults to example    |
-
-This format ensures clarity and completeness. Let me know if you need any tweaks! 🚀
 
 
 
@@ -205,9 +202,6 @@ poetry install
 poetry run study --config optimize/ex_study_config.yaml
 ```
 
-### Example output
-
-TODO
 
 ## Technical Motivation & Background
 

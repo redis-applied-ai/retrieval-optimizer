@@ -7,6 +7,7 @@ def study():
     args = ["python", "-m", "optimize.main"] + sys.argv[1:]
     subprocess.run(args, check=True)
 
+
 def start_app():
     # start app
     subprocess.run(
