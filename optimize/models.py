@@ -45,6 +45,12 @@ class EmbeddingModel(BaseModel):
     dim: int
 
 
+class MetricWeights(BaseModel):
+    f1_at_k: int = 1
+    embedding_latency: int = 1
+    total_indexing_time: int = 1
+
+
 class StudyConfig(BaseModel):
     study_id: str = str(uuid4())
     redis_url: str = "redis://localhost:6379/0"
@@ -54,10 +60,9 @@ class StudyConfig(BaseModel):
     input_data_type: str
     labeled_data_path: str
     embedding_models: list[EmbeddingModel]
-    metrics: list[str]
-    weights: list[float]
     n_trials: int
     n_jobs: int
+    metric_weights: MetricWeights = MetricWeights()
     ret_k: tuple[int, int] = [1, 10]  # type: ignore # pydantic vs mypy
     ef_runtime: list = [10, 50]
     ef_construction: list = [100, 300]

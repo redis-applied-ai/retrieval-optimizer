@@ -6,9 +6,11 @@ labeled_data_path: "data/dbpedia_labeled.json" # labeled data
 n_trials: 3
 n_jobs: 1
 
-# metrics to be used in objective function
-metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"] 
-weights: [1, 1, 1] # weight of each metric respectively 
+# metric weights to be used in objective function
+metric_weights:
+  f1_at_k: 1
+  embedding_latency: 1
+  total_indexing_time: 1
 
 # optimization decision variables
 algorithms: ["flat", "hnsw"] # indexing algorithms variables

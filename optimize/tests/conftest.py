@@ -8,11 +8,17 @@ from optimize.models import (
     EmbeddingModel,
     EmbeddingSettings,
     IndexSettings,
+    MetricWeights,
     Settings,
     StudyConfig,
 )
 
 TEST_REDIS_URL = os.getenv("TEST_REDIS_URL", "redis://localhost:6379/0")
+
+
+@pytest.fixture
+def metric_weights():
+    return MetricWeights(f1_at_k=1, embedding_latency=1, total_indexing_time=1)
 
 
 @pytest.fixture
@@ -51,7 +57,7 @@ def test_db_client():
 
 
 @pytest.fixture
-def study_config(embedding_model):
+def study_config(embedding_model, metric_weights):
     return StudyConfig(
         study_id="study_id",
         redis_url=TEST_REDIS_URL,
@@ -67,6 +73,5 @@ def study_config(embedding_model):
         embedding_models=[embedding_model],
         n_trials=1,
         n_jobs=1,
-        metrics=["f1_at_k", "embedding_latency", "total_indexing_time"],
-        weights=[1, 1, 1],
+        metric_weights=metric_weights,
     )

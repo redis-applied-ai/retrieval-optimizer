@@ -155,7 +155,14 @@ def objective(trial, study_config, custom_retrievers, redis_client):
 
     metric_values = [e.f1_at_k, norm_index_time, norm_latency]
 
-    e.obj_val = cost_fn(metric_values, study_config.weights)
+    e.obj_val = cost_fn(
+        metric_values,
+        [
+            study_config.metric_weights.f1_at_k,
+            study_config.metric_weights.total_indexing_time,
+            study_config.metric_weights.embedding_latency,
+        ],
+    )
 
     # save results as we go in case of failure
     persist_metrics(redis_client, e, study_config.study_id)
