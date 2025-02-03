@@ -150,9 +150,10 @@ raw_data_path: "label_app/data/2008-mazda3-chunks.json"
 input_data_type: "json"
 labeled_data_path: "label_app/data/mazda_labeled_items.json"
 # metrics to be used in objective function
-metrics: ["f1_at_k", "embedding_latency", "total_indexing_time"]
-# weight of each metric
-weights: [1, 1, 1]
+metric_weights:
+  f1_at_k: 1
+  embedding_latency: 1
+  total_indexing_time: 1
 # constraints for the optimization
 n_trials: 10
 n_jobs: 1
@@ -176,14 +177,13 @@ embedding_models:
 |----------------------|------------------------------------------------|--------------------------------------------------|----------|
 | **raw_data_path**    | `label_app/data/2008-mazda3-chunks.json`       | Path to raw data file                           | ✅        |
 | **labeled_data_path** | `label_app/data/mazda-labeled-rewritten.json` | Path to labeled data file                       | ✅        |
-| **metrics**          | f1_at_k, embedding_latency, total_indexing_time | Metrics used in the objective function         | ✅        |
-| **weights**         | [1, 1, 1]                                        | Weights for f1_at_k, embedding_latency, total_indexing_time respectively. | ✅        |
 | **algorithms**      | flat, hnsw                                     | Indexing algorithms to be tested in optimization                        | ✅        |
 | **vector_data_types** | float32, float16                             | Data types to be tested for vectors                          | ✅        |
 | **n_trials**        | 15                                             | Number of optimization trials                   | ✅        |
 | **n_jobs**          | 1                                             | Number of parallel jobs                         | ✅        |
 | **ret_k**          | [1, 10]                                       | Range of values to be tested for `k` in retrieval            | ✅        |
 | **embedding_models** | **Provider:** hf  <br> **Model:** sentence-transformers/all-MiniLM-L6-v2  <br> **Dim:** 384  | List of embedding models and their dimensions  | ✅        |
+| **metric_weights**    | **f1_at_k:** 1 <br> **embedding_latency:** 1 <br> **total_indexing_time:** 1 | Weight for respective metric used in the objective function         | defaults to example        |
 | **input_data_type**  | json                                           | Type of input data                               |    defaults to example    |
 | **redis_url**  | `redis://localhost:6379`                           | Connection string for redis instance                               |      defaults to example   |
 | **ef_runtime**     | [10, 20, 30, 50]                              | Max top candidates during search for HNSW                       |   defaults to example    |
