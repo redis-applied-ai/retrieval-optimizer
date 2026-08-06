@@ -20,6 +20,7 @@ dependencies = [
   "python-dotenv>=1.1.0,<2.0.0",
   "nltk>=3.9.1,<4.0.0",
   "ulid>=1.1",
+  "fastmcp>=3.1.1",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +34,7 @@ check-sort-imports = "scripts:check_sort_imports"
 check-lint = "scripts:check_lint"
 check-mypy = "scripts:check_mypy"
 test = "scripts:test"
+redis-retrieval-optimizer-mcp = "redis_retrieval_optimizer.mcp_server:main"
 
 [dependency-groups]
 dev = [
